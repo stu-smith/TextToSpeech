@@ -825,12 +825,18 @@ public sealed partial class MainViewModel : ObservableObject
 
     // ------------------------------------------------------------------ engine and help
 
+    /// <summary>Downloads whatever the engine is missing (after asking), then starts it.</summary>
     [RelayCommand]
     private async Task StartEngine()
     {
         try
         {
-            await Engine.GetAsync();
+            await SetUpEngineAsync();
+            await Engine.GetAsync(); // if the user declined setup, this fails and the engine status says so
+        }
+        catch (InvalidOperationException e) when (!Engine.Runtime.IsSetUp)
+        {
+            Status = e.Message;
         }
         catch (Exception e) when (e is EngineException or InvalidOperationException or IOException or System.Net.Http.HttpRequestException)
         {
@@ -838,8 +844,30 @@ public sealed partial class MainViewModel : ObservableObject
         }
     }
 
+    /// <summary>Offers to download whatever the engine is missing; the user may decline.</summary>
+    private async Task SetUpEngineAsync()
+    {
+        if (Engine.Runtime.IsSetUp) return;
+        string previous = Status;
+        Status = "Checking what the speech engine needs to download…";
+        var plan = await Task.Run(() => Engine.Runtime.PlanAsync());
+        Status = previous;
+        if (plan.IsComplete) return;
+        if (plan.Downloads.Count == 0)
+            await Engine.Runtime.InstallAsync(plan, Engine.Log); // nothing to download (e.g. the lock changed to versions already present)
+        else
+            new SetupWindow(Engine.Runtime, plan, Engine.Log) { Owner = _window }.ShowDialog();
+    }
+
+    /// <summary>Shows the engine log, or offers setup again if the user declined it.</summary>
     [RelayCommand]
-    private void ShowEngineLog() => new EngineLogWindow(Engine) { Owner = _window }.Show();
+    private async Task ShowEngineLog()
+    {
+        if (Engine.State is EngineState.Stopped or EngineState.Failed && !Engine.Runtime.IsSetUp)
+            await StartEngine();
+        else
+            new EngineLogWindow(Engine) { Owner = _window }.Show();
+    }
 
     [RelayCommand]
     private void ShowMcpSetup()

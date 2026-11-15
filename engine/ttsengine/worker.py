@@ -133,7 +133,7 @@ class Worker:
             self.send({"id": req_id, "error": {"message": str(e) or type(e).__name__, "type": type(e).__name__}})
 
     def run(self) -> None:
-        self.log("Loading Kokoro model (first run downloads ~330 MB)...")
+        self.log("Loading Kokoro model (downloads ~330 MB if not already cached)...")
         self.engine = Engine()
         self.engine.pipeline("af_heart")  # load G2P now rather than on the first request
         self.send({"event": "ready", **self.hello({})})

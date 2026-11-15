@@ -46,16 +46,19 @@ Requires Windows 10/11 and the [.NET 10 Desktop Runtime](https://dotnet.microsof
 dotnet run --project src/TtsStudio.App
 ```
 
-**First run.** The speech engine's runtime is downloaded automatically into
-`%LOCALAPPDATA%\TtsStudio\runtime`; nothing is installed system-wide.
+**First run.** On startup the app checks what the speech engine is missing and lists what it
+will download, with sizes, before fetching anything into `%LOCALAPPDATA%\TtsStudio\runtime`;
+nothing is installed system-wide.
 
 1. [uv](https://github.com/astral-sh/uv) 0.13.8, a single exe pinned by version and SHA-256.
 2. A portable CPython 3.12, downloaded by uv.
 3. The engine's packages from the shipped `engine/uv.lock`, with CPU-only PyTorch.
 4. The Kokoro model weights (~330 MB) from Hugging Face.
 
-This is about 1.2 GB and takes a few minutes. Progress shows in the engine status pill; click
-it for the log, which is also written to `runtime\engine.log`. Set `TTS_STUDIO_RUNTIME` to use a
+This is about 610 MB to download (1.2 GB installed) and takes a few minutes. If you cancel,
+click the engine status pill to set it up later. Setup is logged to `runtime\engine.log`, as is
+the engine (click the pill for its log). The MCP server doesn't ask: it downloads whatever is
+missing on first use. Set `TTS_STUDIO_RUNTIME` to use a
 different folder. Deleting the folder resets everything.
 
 To build a distributable folder:

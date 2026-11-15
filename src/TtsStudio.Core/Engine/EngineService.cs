@@ -16,6 +16,15 @@ public sealed partial class EngineService(RuntimeManager runtime) : ObservableOb
 
     public RuntimeManager Runtime { get; } = runtime;
 
+    /// <summary>
+    /// Whether <see cref="GetAsync"/> may download the runtime and model itself. The app turns this off
+    /// and asks the user first (see <see cref="RuntimeManager.PlanAsync"/>); the MCP server leaves it on.
+    /// </summary>
+    public bool InstallOnDemand { get; init; } = true;
+
+    /// <summary>Appends to the engine log, e.g. from a setup run outside <see cref="GetAsync"/>.</summary>
+    public IProgress<string> Log => new Progress(this);
+
     [ObservableProperty] public partial EngineState State { get; private set; }
     [ObservableProperty] public partial string StatusText { get; private set; } = "Engine not started";
 
@@ -39,6 +48,11 @@ public sealed partial class EngineService(RuntimeManager runtime) : ObservableOb
             if (_client is { HasExited: false }) return _client;
             if (_client is not null) await _client.DisposeAsync();
             _client = null;
+            if (!InstallOnDemand && !Runtime.IsSetUp)
+            {
+                SetState(EngineState.Stopped, "Speech engine not set up (click to download)");
+                throw new InvalidOperationException("The speech engine is not set up yet. Click the engine status to download it.");
+            }
             try
             {
                 if (!Runtime.IsInstalled)

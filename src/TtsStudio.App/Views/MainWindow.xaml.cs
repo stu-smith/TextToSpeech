@@ -25,7 +25,7 @@ public partial class MainWindow : Window
 
     private readonly MainViewModel _vm;
     private readonly AppSettings _settings;
-    private readonly EngineService _engine = new(new RuntimeManager());
+    private readonly EngineService _engine = new(new RuntimeManager()) { InstallOnDemand = false };
     private Sample? _editing;
     private bool _syncingEditor;
 
@@ -53,7 +53,7 @@ public partial class MainWindow : Window
             _vm.Initialize(startupPath);
             SyncEditor();
             Designer.Focus();
-            await _vm.StartEngineCommand.ExecuteAsync(null); // install / start in the background
+            await _vm.StartEngineCommand.ExecuteAsync(null); // offer any downloads, then start in the background
         };
     }
 

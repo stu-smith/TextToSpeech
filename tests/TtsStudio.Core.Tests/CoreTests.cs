@@ -177,3 +177,43 @@ public class ProjectFileTests
         Assert.NotEqual(k1, SynthesisRequest.For(p, s, "a.wav").ContentKey());
     }
 }
+
+public class UvLockTests
+{
+    private static string LockText => File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "engine", "uv.lock"));
+
+    [Theory]
+    [InlineData("torch-2.15.0+cpu-cp312-cp312-win_amd64.whl", 23)]
+    [InlineData("pydantic_core-2.0-cp312-abi3-win_amd64.whl", 22)]
+    [InlineData("six-1.17.0-py2.py3-none-any.whl", 11)]
+    [InlineData("torch-2.15.0-cp312-cp312-macosx_14_0_arm64.whl", 0)]
+    [InlineData("numpy-2.5.4-cp313-cp313-win_amd64.whl", 0)]
+    [InlineData("thing-1.0-cp39-abi3-win_amd64.whl", 22)]
+    public void Wheel_tags_are_scored_for_windows_x64_cpython_312(string file, int score) =>
+        Assert.Equal(score, UvLock.WheelScore(file));
+
+    [Theory]
+    [InlineData("sys_platform == 'win32'", true)]
+    [InlineData("sys_platform == 'darwin'", false)]
+    [InlineData("sys_platform != 'darwin'", true)]
+    [InlineData("platform_machine == 'AMD64' or platform_machine == 'arm64'", true)]
+    [InlineData("python_full_version >= '3.12'", true)]
+    public void Markers_are_evaluated_for_windows(string marker, bool applies) =>
+        Assert.Equal(applies, UvLock.MarkerApplies(marker));
+
+    [Fact]
+    public void Runtime_files_come_from_the_engine_lock()
+    {
+        var files = UvLock.RequiredFiles(LockText, "ttsengine", (_, _) => false);
+        var torch = Assert.Single(files, f => f.Name == "torch");
+        Assert.Equal("2.15.0+cpu", torch.Version);
+        Assert.EndsWith("win_amd64.whl", torch.Url);
+        Assert.Contains(files, f => f.Name == "colorama");          // win32-only dependency
+        Assert.Contains(files, f => f.Name == "en-core-web-sm");    // direct URL wheel
+        Assert.DoesNotContain(files, f => f.Name == "pytest");      // dev group
+        Assert.DoesNotContain(files, f => f.Name == "ttsengine");   // the project itself
+
+        var none = UvLock.RequiredFiles(LockText, "ttsengine", (_, _) => true);
+        Assert.Empty(none);
+    }
+}
