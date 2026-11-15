@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
+using TtsStudio.App.Services;
 using TtsStudio.Core;
 using TtsStudio.Core.Engine;
 using TtsStudio.Core.Model;
@@ -87,17 +88,34 @@ public sealed class AnnotatedTextView : FrameworkElement
     private static readonly Typeface SmallFace = new(new FontFamily("Segoe UI"), FontStyles.Normal, FontWeights.Normal, FontStretches.Normal);
     private static readonly Typeface LabelFace = new(new FontFamily("Segoe UI"), FontStyles.Normal, FontWeights.SemiBold, FontStretches.Normal);
 
-    private static readonly Brush TextBrush = Frozen(Color.FromRgb(0xE9, 0xEA, 0xEC));
-    private static readonly Brush DimBrush = Frozen(Color.FromRgb(0x6E, 0x73, 0x7C));
-    private static readonly Brush PhonemeBrush = Frozen(Color.FromRgb(0x8C, 0x91, 0x9B));
-    private static readonly Brush AccentBrush = Frozen(Color.FromRgb(0x7B, 0x93, 0xFF));
-    private static readonly Brush SelectionBrush = Frozen(Color.FromArgb(0x60, 0x7B, 0x93, 0xFF));
-    private static readonly Brush PlayBrush = Frozen(Color.FromArgb(0x40, 0xFF, 0xFF, 0xFF));
-    private static readonly Brush LexiconBrush = Frozen(Color.FromRgb(0x4F, 0xCB, 0x8E));
-    private static readonly Brush GuessBrush = Frozen(Color.FromRgb(0xFF, 0x70, 0x70));
-    private static readonly Pen GuessPen = FrozenPen(GuessBrush, 1.5, new DashStyle([2, 2], 0));
-    private static readonly Pen SelectedPen = FrozenPen(Frozen(Colors.White), 1.5);
     private static readonly Pen HandlePen = FrozenPen(Frozen(Color.FromRgb(0x16, 0x17, 0x1A)), 1);
+
+    // Theme colours, reloaded from the palette when the theme changes.
+    private Brush TextBrush = null!, DimBrush = null!, PhonemeBrush = null!, AccentBrush = null!, SelectionBrush = null!;
+    private Brush PlayBrush = null!, LexiconBrush = null!, GuessBrush = null!;
+    private Pen GuessPen = null!, SelectedPen = null!;
+
+    private void LoadColours()
+    {
+        Brush Res(string key) => (Brush)FindResource(key);
+        TextBrush = Res("TextBrush");
+        DimBrush = Res("TextFaintBrush");
+        PhonemeBrush = Res("PhonemeBrush");
+        AccentBrush = Res("AccentBrush");
+        SelectionBrush = Res("TextSelectionBrush");
+        PlayBrush = Res("PlayHighlightBrush");
+        LexiconBrush = Res("SuccessBrush");
+        GuessBrush = Res("DangerBrush");
+        GuessPen = FrozenPen(GuessBrush, 1.5, new DashStyle([2, 2], 0));
+        SelectedPen = FrozenPen(Res("MarkerBrush"), 1.5);
+    }
+
+    private void OnThemeChanged()
+    {
+        LoadColours();
+        InvalidateMeasure(); // the laid-out text carries its brush
+        InvalidateVisual();
+    }
 
     private static Brush Frozen(Color c)
     {
@@ -138,6 +156,13 @@ public sealed class AnnotatedTextView : FrameworkElement
         FocusVisualStyle = null;
         Cursor = Cursors.IBeam;
         ClipToBounds = true;
+        LoadColours();
+        Loaded += (_, _) =>
+        {
+            ThemeManager.Changed += OnThemeChanged;
+            OnThemeChanged();
+        };
+        Unloaded += (_, _) => ThemeManager.Changed -= OnThemeChanged;
     }
 
     // ------------------------------------------------------------------ region tracking

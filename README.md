@@ -34,6 +34,8 @@ up pronunciations and render audio.
   Ogg Vorbis or MP3.
 - **Markup import**: type annotated text such as `I didn't say *she* stole it.` and get a sample
   with regions (see the reference under the book icon).
+- **Settings** (gear icon or Ctrl+,): light, dark or system theme, and links to the settings
+  and speech runtime folders.
 
 ## Running
 

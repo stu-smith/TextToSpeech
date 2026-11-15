@@ -5,7 +5,7 @@
         xmlns:vm="clr-namespace:TtsStudio.App.ViewModels"
         x:Name="Root"
         Title="{Binding Title}" Width="1440" Height="880" MinWidth="1000" MinHeight="620"
-        Background="{StaticResource BgBrush}" Foreground="{StaticResource TextBrush}"
+        Background="{DynamicResource BgBrush}" Foreground="{DynamicResource TextBrush}"
         FontFamily="{StaticResource UiFont}" FontSize="13"
         UseLayoutRounding="True" TextOptions.TextFormattingMode="Display">
 
@@ -70,6 +70,7 @@
         <KeyBinding Key="E" Modifiers="Control" Command="{Binding ApplyPresetCommand}" CommandParameter="emphasis" />
         <KeyBinding Key="P" Modifiers="Control" Command="{Binding ApplyPresetCommand}" CommandParameter="pronunciation" />
         <KeyBinding Key="M" Modifiers="Control" Command="{Binding AddSampleCommand}" />
+        <KeyBinding Key="OemComma" Modifiers="Control" Command="{Binding ShowSettingsCommand}" />
     </Window.InputBindings>
 
     <Grid>
@@ -80,7 +81,7 @@
         </Grid.RowDefinitions>
 
         <!-- ============================================================ toolbar -->
-        <Border Background="{StaticResource PanelBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1" Padding="12,6">
+        <Border Background="{DynamicResource PanelBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,0,1" Padding="12,6">
             <DockPanel LastChildFill="False">
                 <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" Margin="2,0,14,0">
                     <Border Width="26" Height="26" CornerRadius="7" VerticalAlignment="Center">
@@ -94,7 +95,7 @@
                     </Border>
                     <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
                         <TextBlock Text="TTS Studio" FontWeight="SemiBold" FontSize="13" />
-                        <TextBlock Text="{Binding ProjectFileLabel}" Foreground="{StaticResource TextFaintBrush}" FontSize="11" MaxWidth="260" TextTrimming="CharacterEllipsis" ToolTip="{Binding ProjectFileLabel}" />
+                        <TextBlock Text="{Binding ProjectFileLabel}" Foreground="{DynamicResource TextFaintBrush}" FontSize="11" MaxWidth="260" TextTrimming="CharacterEllipsis" ToolTip="{Binding ProjectFileLabel}" />
                     </StackPanel>
                 </StackPanel>
 
@@ -171,6 +172,9 @@
                 </Button>
 
                 <!-- right side -->
+                <Button Style="{StaticResource ToolButton}" Command="{Binding ShowSettingsCommand}" DockPanel.Dock="Right" ToolTip="Settings (Ctrl+,)">
+                    <TextBlock Style="{StaticResource Icon}" Text="&#xE713;" />
+                </Button>
                 <Button Style="{StaticResource ToolButton}" Command="{Binding ShowGuideCommand}" DockPanel.Dock="Right" ToolTip="Speech reference: properties and phonemes">
                     <TextBlock Style="{StaticResource Icon}" Text="&#xE82D;" />
                 </Button>
@@ -181,24 +185,24 @@
                     </StackPanel>
                 </Button>
                 <Button x:Name="EnginePill" DockPanel.Dock="Right" Margin="0,0,8,0" Padding="10,4" Command="{Binding ShowEngineLogCommand}"
-                        Background="{StaticResource Panel2Brush}" BorderBrush="{StaticResource BorderStrongBrush}" ToolTip="Speech engine status (click for the log)">
+                        Background="{DynamicResource Panel2Brush}" BorderBrush="{DynamicResource BorderStrongBrush}" ToolTip="Speech engine status (click for the log)">
                     <StackPanel Orientation="Horizontal">
                         <Ellipse Width="8" Height="8" VerticalAlignment="Center">
                             <Ellipse.Style>
                                 <Style TargetType="Ellipse">
-                                    <Setter Property="Fill" Value="{StaticResource TextFaintBrush}" />
+                                    <Setter Property="Fill" Value="{DynamicResource TextFaintBrush}" />
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding Engine.State}" Value="Ready">
-                                            <Setter Property="Fill" Value="{StaticResource SuccessBrush}" />
+                                            <Setter Property="Fill" Value="{DynamicResource SuccessBrush}" />
                                         </DataTrigger>
                                         <DataTrigger Binding="{Binding Engine.State}" Value="Installing">
-                                            <Setter Property="Fill" Value="{StaticResource WarningBrush}" />
+                                            <Setter Property="Fill" Value="{DynamicResource WarningBrush}" />
                                         </DataTrigger>
                                         <DataTrigger Binding="{Binding Engine.State}" Value="Starting">
-                                            <Setter Property="Fill" Value="{StaticResource WarningBrush}" />
+                                            <Setter Property="Fill" Value="{DynamicResource WarningBrush}" />
                                         </DataTrigger>
                                         <DataTrigger Binding="{Binding Engine.State}" Value="Failed">
-                                            <Setter Property="Fill" Value="{StaticResource DangerBrush}" />
+                                            <Setter Property="Fill" Value="{DynamicResource DangerBrush}" />
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
@@ -225,7 +229,7 @@
             <!-- left: samples / project -->
             <Border Style="{StaticResource Card}">
                 <DockPanel>
-                    <Border DockPanel.Dock="Top" Margin="10,10,10,4" Background="{StaticResource BgBrush}" CornerRadius="7" Padding="3">
+                    <Border DockPanel.Dock="Top" Margin="10,10,10,4" Background="{DynamicResource BgBrush}" CornerRadius="7" Padding="3">
                         <UniformGrid Columns="2">
                             <RadioButton Style="{StaticResource SegmentRadio}" Content="Samples" IsChecked="{Binding ShowProjectTab, Converter={StaticResource Not}}" />
                             <RadioButton Style="{StaticResource SegmentRadio}" Content="Project" IsChecked="{Binding ShowProjectTab}" />
@@ -263,11 +267,11 @@
                                 <DataTemplate>
                                     <StackPanel Margin="4,0,0,0">
                                         <DockPanel>
-                                            <TextBlock DockPanel.Dock="Right" Foreground="{StaticResource TextFaintBrush}" FontSize="11" VerticalAlignment="Center"
+                                            <TextBlock DockPanel.Dock="Right" Foreground="{DynamicResource TextFaintBrush}" FontSize="11" VerticalAlignment="Center"
                                                        Text="{Binding Regions.Count, StringFormat={}{0} ◆}" ToolTip="Regions" />
                                             <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
                                         </DockPanel>
-                                        <TextBlock Text="{Binding Text, Converter={StaticResource FirstLine}}" Foreground="{StaticResource TextDimBrush}"
+                                        <TextBlock Text="{Binding Text, Converter={StaticResource FirstLine}}" Foreground="{DynamicResource TextDimBrush}"
                                                    FontSize="12" TextTrimming="CharacterEllipsis" Margin="0,2,0,0" />
                                     </StackPanel>
                                 </DataTemplate>
@@ -336,22 +340,22 @@
             </Border>
 
             <!-- centre: designer + prosody -->
-            <Grid Grid.Column="2">
+            <Grid x:Name="CentreGrid" Grid.Column="2">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*" MinHeight="200" />
                     <RowDefinition Height="10" />
-                    <RowDefinition Height="230" MinHeight="140" />
+                    <RowDefinition x:Name="PitchRow" Height="230" MinHeight="140" />
                 </Grid.RowDefinitions>
 
                 <Border Style="{StaticResource Card}">
                     <DockPanel>
                         <!-- designer header -->
-                        <Border DockPanel.Dock="Top" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1" Padding="16,10,10,10">
+                        <Border DockPanel.Dock="Top" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,0,1" Padding="16,10,10,10">
                             <DockPanel>
                                 <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
-                                    <CheckBox Content="Snap to words" IsChecked="{Binding SnapToWords}" Margin="0,0,14,0" Foreground="{StaticResource TextDimBrush}"
+                                    <CheckBox Content="Snap to words" IsChecked="{Binding SnapToWords}" Margin="0,0,14,0" Foreground="{DynamicResource TextDimBrush}"
                                               ToolTip="Selections and region edges snap to whole words (hold Alt to override)" />
-                                    <CheckBox Content="Live render" IsChecked="{Binding AutoRender}" Margin="0,0,12,0" Foreground="{StaticResource TextDimBrush}"
+                                    <CheckBox Content="Live render" IsChecked="{Binding AutoRender}" Margin="0,0,12,0" Foreground="{DynamicResource TextDimBrush}"
                                               ToolTip="Re-render automatically after each change, so phonemes and pitch stay current" />
                                     <ToggleButton IsChecked="{Binding IsEditingText}" Padding="10,5" ToolTip="Edit the text (F2); regions follow the words they cover">
                                         <StackPanel Orientation="Horizontal">
@@ -362,7 +366,7 @@
                                 </StackPanel>
                                 <StackPanel VerticalAlignment="Center">
                                     <TextBlock Text="{Binding SelectedSample.Name}" Style="{StaticResource TitleText}" TextTrimming="CharacterEllipsis" />
-                                    <TextBlock Foreground="{StaticResource TextFaintBrush}" FontSize="12" Margin="0,2,0,0" Text="Select text, then right-click (or Ctrl+R) to add a region. Click a region to edit it." />
+                                    <TextBlock Foreground="{DynamicResource TextFaintBrush}" FontSize="12" Margin="0,2,0,0" Text="Select text, then right-click (or Ctrl+R) to add a region. Click a region to edit it." />
                                 </StackPanel>
                             </DockPanel>
                         </Border>
@@ -387,7 +391,7 @@
                                      AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto"
                                      VerticalContentAlignment="Top" FontSize="22" Padding="22,18" BorderThickness="0" Background="Transparent"
                                      TextChanged="OnEditorTextChanged" />
-                            <TextBlock Visibility="{Binding IsEditingText, Converter={StaticResource Visible}}" Foreground="{StaticResource TextFaintBrush}"
+                            <TextBlock Visibility="{Binding IsEditingText, Converter={StaticResource Visible}}" Foreground="{DynamicResource TextFaintBrush}"
                                        HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,16,10" FontSize="12"
                                        Text="Editing text. Regions stay attached to their words. Press F2 or Esc when done." />
                         </Grid>
@@ -401,16 +405,16 @@
                     <DockPanel>
                         <DockPanel DockPanel.Dock="Top" Margin="16,10,12,0">
                             <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
-                                <TextBlock Foreground="{StaticResource TextFaintBrush}" FontSize="11" VerticalAlignment="Center" Margin="0,0,10,0">
+                                <TextBlock Foreground="{DynamicResource TextFaintBrush}" FontSize="11" VerticalAlignment="Center" Margin="0,0,10,0">
                                     <Run Text="┄ predicted" />
-                                    <Run Text="  ━ " Foreground="{StaticResource AccentBrush}" /><Run Text="after edits" />
+                                    <Run Text="  ━ " Foreground="{DynamicResource AccentBrush}" /><Run Text="after edits" />
                                 </TextBlock>
                             </StackPanel>
                             <TextBlock Style="{StaticResource HeaderText}" Text="PITCH AND TIMING" Margin="0" VerticalAlignment="Center" />
-                            <TextBlock Text="{Binding ResultSummary}" Foreground="{StaticResource TextFaintBrush}" FontSize="12" Margin="14,0,0,0" VerticalAlignment="Center" />
-                            <TextBlock Text="  · out of date" Foreground="{StaticResource WarningBrush}" FontSize="12" VerticalAlignment="Center"
+                            <TextBlock Text="{Binding ResultSummary}" Foreground="{DynamicResource TextFaintBrush}" FontSize="12" Margin="14,0,0,0" VerticalAlignment="Center" />
+                            <TextBlock Text="  · out of date" Foreground="{DynamicResource WarningBrush}" FontSize="12" VerticalAlignment="Center"
                                        Visibility="{Binding IsResultStale, Converter={StaticResource Visible}}" />
-                            <TextBlock Text="  · rendering…" Foreground="{StaticResource AccentBrush}" FontSize="12" VerticalAlignment="Center"
+                            <TextBlock Text="  · rendering…" Foreground="{DynamicResource AccentBrush}" FontSize="12" VerticalAlignment="Center"
                                        Visibility="{Binding IsRendering, Converter={StaticResource Visible}}" />
                         </DockPanel>
                         <c:ProsodyView Margin="4,6,6,8" Result="{Binding Result}" PlaybackTime="{Binding Player.Position}"
@@ -478,7 +482,7 @@
                                     </MultiBinding>
                                 </TextBlock.Text>
                             </TextBlock>
-                            <TextBlock Foreground="{StaticResource TextFaintBrush}" FontSize="12" Text="{Binding Summary}" TextWrapping="Wrap" />
+                            <TextBlock Foreground="{DynamicResource TextFaintBrush}" FontSize="12" Text="{Binding Summary}" TextWrapping="Wrap" />
 
                             <TextBlock Style="{StaticResource LabelText}" Text="Label (optional)" />
                             <TextBox Text="{Binding Label, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource NullToEmpty}}" />
@@ -512,9 +516,9 @@
                                 <Button DockPanel.Dock="Right" Style="{StaticResource SubtleButton}" FontSize="12" Padding="8,3"
                                         Command="{Binding DataContext.AddToLexiconCommand, ElementName=Root}"
                                         ToolTip="Use this pronunciation for the word everywhere in the project">
-                                    <TextBlock Text="Add to lexicon" Foreground="{StaticResource AccentBrush}" />
+                                    <TextBlock Text="Add to lexicon" Foreground="{DynamicResource AccentBrush}" />
                                 </Button>
-                                <TextBlock Text="Stress" VerticalAlignment="Center" Foreground="{StaticResource TextDimBrush}" Margin="0,0,10,0" />
+                                <TextBlock Text="Stress" VerticalAlignment="Center" Foreground="{DynamicResource TextDimBrush}" Margin="0,0,10,0" />
                                 <ComboBox Width="150" HorizontalAlignment="Left" SelectedValuePath="Tag"
                                           SelectedValue="{Binding Stress, Converter={StaticResource DoubleToString}}"
                                           ToolTip="Adjust lexical stress (ignored when a pronunciation is given)">
@@ -531,7 +535,7 @@
                             <c:OptionalNumber Label="Pitch" Value="{Binding Pitch}" Minimum="-12" Maximum="12" Step="0.5" DefaultValue="2" Unit="st" ShowSign="True"
                                               ToolTip="Shift the pitch, in semitones" />
                             <DockPanel Margin="0,4,0,4">
-                                <TextBlock Text="Contour" VerticalAlignment="Center" Foreground="{StaticResource TextBrush}" Width="70" />
+                                <TextBlock Text="Contour" VerticalAlignment="Center" Foreground="{DynamicResource TextBrush}" Width="70" />
                                 <ComboBox SelectedValuePath="Tag" SelectedValue="{Binding Contour, Converter={StaticResource NullToEmpty}}"
                                           ToolTip="A pitch glide across the region">
                                     <ComboBoxItem Content="None" Tag="" />
@@ -557,7 +561,7 @@
                             <c:OptionalNumber Label="Energy (experimental)" Value="{Binding Energy}" Minimum="-3" Maximum="3" Step="0.1" DefaultValue="1" ShowSign="True"
                                               ToolTip="Pushes the model's internal energy curve; can change voice quality" />
 
-                            <Button Style="{StaticResource SubtleButton}" HorizontalAlignment="Left" Margin="-8,12,0,0" Foreground="{StaticResource TextDimBrush}"
+                            <Button Style="{StaticResource SubtleButton}" HorizontalAlignment="Left" Margin="-8,12,0,0" Foreground="{DynamicResource TextDimBrush}"
                                     Command="{Binding DataContext.ClearRegionPropertiesCommand, ElementName=Root}">
                                 <TextBlock Text="Clear all properties" />
                             </Button>
@@ -602,7 +606,7 @@
                                                             </MultiBinding>
                                                         </TextBlock.Text>
                                                     </TextBlock>
-                                                    <TextBlock Text="{Binding Summary}" Foreground="{StaticResource TextFaintBrush}" FontSize="11" TextTrimming="CharacterEllipsis" />
+                                                    <TextBlock Text="{Binding Summary}" Foreground="{DynamicResource TextFaintBrush}" FontSize="11" TextTrimming="CharacterEllipsis" />
                                                 </StackPanel>
                                             </DockPanel>
                                         </Button>
@@ -616,8 +620,8 @@
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
                                         <DockPanel Margin="0,0,0,6">
-                                            <TextBlock Style="{StaticResource Icon}" Text="&#xE7BA;" Foreground="{StaticResource WarningBrush}" FontSize="12" VerticalAlignment="Top" Margin="0,2,8,0" />
-                                            <TextBlock Text="{Binding}" TextWrapping="Wrap" Foreground="{StaticResource TextDimBrush}" FontSize="12" />
+                                            <TextBlock Style="{StaticResource Icon}" Text="&#xE7BA;" Foreground="{DynamicResource WarningBrush}" FontSize="12" VerticalAlignment="Top" Margin="0,2,8,0" />
+                                            <TextBlock Text="{Binding}" TextWrapping="Wrap" Foreground="{DynamicResource TextDimBrush}" FontSize="12" />
                                         </DockPanel>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
@@ -626,7 +630,7 @@
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
                                         <TextBox Text="{Binding Mode=OneWay}" IsReadOnly="True" TextWrapping="Wrap" FontFamily="{StaticResource PhonemeFont}"
-                                                 Background="Transparent" BorderThickness="0" Padding="0" Foreground="{StaticResource TextFaintBrush}" FontSize="12"
+                                                 Background="Transparent" BorderThickness="0" Padding="0" Foreground="{DynamicResource TextFaintBrush}" FontSize="12"
                                                  ToolTip="Phonemes sent to the model" />
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
@@ -638,12 +642,12 @@
         </Grid>
 
         <!-- ============================================================ status bar -->
-        <Border Grid.Row="2" Background="{StaticResource PanelBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,1,0,0" Padding="14,5">
+        <Border Grid.Row="2" Background="{DynamicResource PanelBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,1,0,0" Padding="14,5">
             <DockPanel>
-                <TextBlock DockPanel.Dock="Right" Foreground="{StaticResource TextFaintBrush}" FontSize="12"
+                <TextBlock DockPanel.Dock="Right" Foreground="{DynamicResource TextFaintBrush}" FontSize="12"
                            Text="F5 play · F6 A/B · F2 edit text · Ctrl+R add region · Ctrl+E emphasise · Del delete" />
-                <TextBlock Text="{Binding Status}" Foreground="{StaticResource TextDimBrush}" FontSize="12" TextTrimming="CharacterEllipsis" MaxWidth="600" />
-                <TextBlock Text="{Binding HoverInfo}" Foreground="{StaticResource TextBrush}" FontSize="12" Margin="24,0" TextTrimming="CharacterEllipsis"
+                <TextBlock Text="{Binding Status}" Foreground="{DynamicResource TextDimBrush}" FontSize="12" TextTrimming="CharacterEllipsis" MaxWidth="600" />
+                <TextBlock Text="{Binding HoverInfo}" Foreground="{DynamicResource TextBrush}" FontSize="12" Margin="24,0" TextTrimming="CharacterEllipsis"
                            FontFamily="{StaticResource PhonemeFont}" />
             </DockPanel>
         </Border>

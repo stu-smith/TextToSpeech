@@ -1,0 +1,42 @@
+<!-- Dark palette. Light.xaml must define the same keys; ThemeManager swaps one for the other. -->
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- ============================================================ surfaces -->
+    <SolidColorBrush x:Key="BgBrush" Color="#16171A" />
+    <SolidColorBrush x:Key="PanelBrush" Color="#1D1E22" />
+    <SolidColorBrush x:Key="Panel2Brush" Color="#25262B" />
+    <SolidColorBrush x:Key="ControlBrush" Color="#2A2C31" />
+    <SolidColorBrush x:Key="HoverBrush" Color="#33353B" />
+    <SolidColorBrush x:Key="PressedBrush" Color="#3B3D44" />
+    <SolidColorBrush x:Key="ToolTipBrush" Color="#2E3036" />
+    <SolidColorBrush x:Key="BorderBrush" Color="#2E3036" />
+    <SolidColorBrush x:Key="BorderStrongBrush" Color="#3E414A" />
+    <SolidColorBrush x:Key="BorderHoverBrush" Color="#565A66" />
+    <SolidColorBrush x:Key="ScrollThumbBrush" Color="#454852" />
+    <SolidColorBrush x:Key="ScrollThumbHoverBrush" Color="#5C606C" />
+
+    <!-- ============================================================ text and accents -->
+    <SolidColorBrush x:Key="TextBrush" Color="#E9EAEC" />
+    <SolidColorBrush x:Key="TextDimBrush" Color="#A0A4AC" />
+    <SolidColorBrush x:Key="TextFaintBrush" Color="#6E737C" />
+    <SolidColorBrush x:Key="AccentBrush" Color="#7B93FF" />
+    <SolidColorBrush x:Key="AccentHoverBrush" Color="#90A4FF" />
+    <SolidColorBrush x:Key="AccentPressedBrush" Color="#6880F0" />
+    <SolidColorBrush x:Key="AccentSoftBrush" Color="#337B93FF" />
+    <SolidColorBrush x:Key="OnAccentBrush" Color="#0E1020" />
+    <SolidColorBrush x:Key="DangerBrush" Color="#FF7070" />
+    <SolidColorBrush x:Key="SuccessBrush" Color="#4FCB8E" />
+    <SolidColorBrush x:Key="WarningBrush" Color="#F4BB55" />
+
+    <!-- ============================================================ designer and pitch view -->
+    <SolidColorBrush x:Key="PhonemeBrush" Color="#8C919B" />
+    <SolidColorBrush x:Key="TextSelectionBrush" Color="#607B93FF" />
+    <SolidColorBrush x:Key="PlayHighlightBrush" Color="#40FFFFFF" />
+    <SolidColorBrush x:Key="MarkerBrush" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="GridLineBrush" Color="#2A2C32" />
+    <SolidColorBrush x:Key="WordLineBrush" Color="#303239" />
+    <SolidColorBrush x:Key="WaveBrush" Color="#558C93A6" />
+    <SolidColorBrush x:Key="PredictedPitchBrush" Color="#828792" />
+
+</ResourceDictionary>

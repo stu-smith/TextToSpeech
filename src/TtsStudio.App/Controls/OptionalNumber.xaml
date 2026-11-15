@@ -13,12 +13,12 @@
         </Grid.RowDefinitions>
 
         <CheckBox x:Name="Check" VerticalAlignment="Center" Click="OnCheckClick" />
-        <TextBlock x:Name="PlainLabel" VerticalAlignment="Center" Foreground="{StaticResource TextBrush}" Visibility="Collapsed" />
+        <TextBlock x:Name="PlainLabel" VerticalAlignment="Center" Foreground="{DynamicResource TextBrush}" Visibility="Collapsed" />
 
         <TextBox x:Name="Box" Grid.Column="1" Width="62" Padding="6,3" FontSize="12" HorizontalContentAlignment="Right"
                  LostKeyboardFocus="OnBoxLostFocus" KeyDown="OnBoxKeyDown" GotKeyboardFocus="OnBoxGotFocus" />
         <TextBlock x:Name="UnitText" Grid.Column="2" Width="24" Margin="6,0,0,0" VerticalAlignment="Center"
-                   Foreground="{StaticResource TextFaintBrush}" FontSize="12" />
+                   Foreground="{DynamicResource TextFaintBrush}" FontSize="12" />
 
         <Slider x:Name="SliderCtl" Grid.Row="1" Grid.ColumnSpan="3" Margin="24,5,0,0" ValueChanged="OnSliderChanged" />
     </Grid>

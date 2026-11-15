@@ -68,17 +68,19 @@ public static class Dialog
             Width = extra is TextBox { AcceptsReturn: true } or TextBox { IsReadOnly: true } ? 640 : 460,
             ResizeMode = ResizeMode.NoResize,
             ShowInTaskbar = owner is null,
-            Background = (Brush)app.FindResource("PanelBrush"),
-            Foreground = (Brush)app.FindResource("TextBrush"),
             FontFamily = (FontFamily)app.FindResource("UiFont"),
             FontSize = 13,
         };
-        DarkTitleBar.Apply(w);
+        w.SetResourceReference(Control.BackgroundProperty, "PanelBrush");
+        w.SetResourceReference(Control.ForegroundProperty, "TextBrush");
+        TitleBar.Apply(w);
         int result = -1;
 
         var panel = new StackPanel { Margin = new Thickness(24, 20, 24, 20) };
         panel.Children.Add(new TextBlock { Text = title, Style = (Style)app.FindResource("TitleText"), Margin = new Thickness(0, 0, 0, 10) });
-        panel.Children.Add(new TextBlock { Text = message, TextWrapping = TextWrapping.Wrap, Foreground = (Brush)app.FindResource("TextDimBrush"), LineHeight = 19 });
+        var messageText = new TextBlock { Text = message, TextWrapping = TextWrapping.Wrap, LineHeight = 19 };
+        messageText.SetResourceReference(TextBlock.ForegroundProperty, "TextDimBrush");
+        panel.Children.Add(messageText);
         if (extra is not null)
         {
             if (extra.Parent is Panel old) old.Children.Remove(extra);

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <!-- Simplified AppIcon.svg for 16-24 px: bigger bubble, three heavier bars. -->
+  <rect x="0" y="0" width="256" height="256" rx="48" fill="#1D1E22"/>
+  <path d="M68 24 H188 A44 44 0 0 1 232 68 V148 A44 44 0 0 1 188 192 H112 L48 240 L58 190 A44 44 0 0 1 24 148 V68 A44 44 0 0 1 68 24 Z"
+        fill="#7B93FF"/>
+  <g fill="#FFFFFF">
+    <rect x="58"  y="80" width="32" height="56"  rx="16"/>
+    <rect x="112" y="48" width="32" height="120" rx="16"/>
+    <rect x="166" y="80" width="32" height="56"  rx="16"/>
+  </g>
+</svg>

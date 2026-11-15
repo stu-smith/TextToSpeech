@@ -17,15 +17,15 @@ public sealed class EngineLogWindow : Window
         Width = 820;
         Height = 480;
         WindowStartupLocation = WindowStartupLocation.CenterOwner;
-        Background = (Brush)FindResource("PanelBrush");
-        DarkTitleBar.Apply(this);
+        SetResourceReference(BackgroundProperty, "PanelBrush");
+        TitleBar.Apply(this);
 
         var info = new TextBlock
         {
             Text = $"Runtime folder: {engine.Runtime.Root}\nEngine folder: {engine.Runtime.EngineDir}",
-            Foreground = (Brush)FindResource("TextDimBrush"),
             Margin = new Thickness(0, 0, 0, 10),
         };
+        info.SetResourceReference(TextBlock.ForegroundProperty, "TextDimBrush");
         _box = new TextBox
         {
             IsReadOnly = true,

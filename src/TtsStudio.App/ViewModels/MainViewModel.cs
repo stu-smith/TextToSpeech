@@ -854,6 +854,9 @@ public sealed partial class MainViewModel : ObservableObject
     }
 
     [RelayCommand]
+    private void ShowSettings() => new SettingsWindow(Settings, Engine.Runtime) { Owner = _window }.ShowDialog();
+
+    [RelayCommand]
     private void ShowGuide() => Dialog.ShowText(_window, "Speech reference", "Region properties, the phoneme set and the quick markup.", Guide.Full, 420);
 
     private void CleanRenderCache()

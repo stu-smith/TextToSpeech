@@ -24,24 +24,21 @@ public partial class MainWindow : Window
     ];
 
     private readonly MainViewModel _vm;
-    private readonly AppSettings _settings = AppSettings.Load();
+    private readonly AppSettings _settings;
     private readonly EngineService _engine = new(new RuntimeManager());
     private Sample? _editing;
     private bool _syncingEditor;
 
-    public MainWindow(string? startupPath)
+    public MainWindow(AppSettings settings, string? startupPath)
     {
+        _settings = settings;
         InitializeComponent();
-        DarkTitleBar.Apply(this);
+        TitleBar.Apply(this);
         _vm = new MainViewModel(this, _engine, _settings);
         DataContext = _vm;
 
-        if (_settings.Width is > 400 && _settings.Height is > 300)
-        {
-            Width = _settings.Width.Value;
-            Height = _settings.Height.Value;
-        }
-        if (_settings.Maximized) WindowState = WindowState.Maximized;
+        if (_settings.Window is { } bounds) SourceInitialized += (_, _) => WindowPlacement.Set(this, bounds);
+        if (_settings.PitchViewHeight is > 0 and var pitch) PitchRow.Height = new GridLength(pitch);
 
         BuildPhonemePalette();
         _vm.PropertyChanged += OnViewModelChanged;
@@ -52,6 +49,7 @@ public partial class MainWindow : Window
 
         Loaded += async (_, _) =>
         {
+            FitPitchView();
             _vm.Initialize(startupPath);
             SyncEditor();
             Designer.Focus();
@@ -187,13 +185,16 @@ public partial class MainWindow : Window
             e.Cancel = true;
             return;
         }
-        _settings.Maximized = WindowState == WindowState.Maximized;
-        if (WindowState == WindowState.Normal)
-        {
-            _settings.Width = Width;
-            _settings.Height = Height;
-        }
+        _settings.Window = WindowPlacement.Get(this) ?? _settings.Window;
+        _settings.PitchViewHeight = PitchRow.ActualHeight;
         _vm.Shutdown();
+    }
+
+    /// <summary>Shrinks a restored pitch view height that would squeeze the designer below its minimum (e.g. on a smaller screen).</summary>
+    private void FitPitchView()
+    {
+        double room = CentreGrid.ActualHeight - CentreGrid.RowDefinitions[0].MinHeight - CentreGrid.RowDefinitions[1].ActualHeight;
+        if (room > 0 && PitchRow.ActualHeight > room) PitchRow.Height = new GridLength(Math.Max(PitchRow.MinHeight, room));
     }
 
     protected override async void OnClosed(EventArgs e)

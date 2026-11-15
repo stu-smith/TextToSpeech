@@ -7,6 +7,8 @@
     <RootNamespace>TtsStudio.App</RootNamespace>
     <AssemblyName>TtsStudio</AssemblyName>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <!-- Built from Assets/AppIcon.svg (32 px and up) and Assets/AppIcon-small.svg (16-24 px). -->
+    <ApplicationIcon>Assets\AppIcon.ico</ApplicationIcon>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 

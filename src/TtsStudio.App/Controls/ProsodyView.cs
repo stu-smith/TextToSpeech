@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
+using TtsStudio.App.Services;
 using TtsStudio.Core.Engine;
 
 namespace TtsStudio.App.Controls;
@@ -45,17 +46,31 @@ public sealed class ProsodyView : FrameworkElement
     private const double Left = 48, Right = 14, Top = 24, Bottom = 10;
 
     private static readonly Typeface Face = new("Segoe UI");
-    private static readonly Brush GridBrush = Frozen(Color.FromRgb(0x2A, 0x2C, 0x32));
-    private static readonly Brush WaveBrush = Frozen(Color.FromArgb(0x55, 0x8C, 0x93, 0xA6));
-    private static readonly Brush LabelBrush = Frozen(Color.FromRgb(0xA0, 0xA4, 0xAC));
-    private static readonly Brush FaintBrush = Frozen(Color.FromRgb(0x6E, 0x73, 0x7C));
-    private static readonly Brush GuessBrush = Frozen(Color.FromRgb(0xFF, 0x70, 0x70));
     private static readonly Brush EditedBand = Frozen(Color.FromArgb(0x16, 0xF5, 0xA6, 0x4C));
-    private static readonly Pen GridPen = FrozenPen(GridBrush, 1);
-    private static readonly Pen WordPen = FrozenPen(Frozen(Color.FromRgb(0x30, 0x32, 0x39)), 1);
-    private static readonly Pen PredictedPen = FrozenPen(Frozen(Color.FromRgb(0x82, 0x87, 0x92)), 1.3, DashStyles.Dash);
-    private static readonly Pen FinalPen = FrozenPen(Frozen(Color.FromRgb(0x7B, 0x93, 0xFF)), 2.2);
-    private static readonly Pen PlayheadPen = FrozenPen(Frozen(Colors.White), 1.5);
+
+    // Theme colours, reloaded from the palette when the theme changes.
+    private Brush WaveBrush = null!, LabelBrush = null!, FaintBrush = null!, GuessBrush = null!;
+    private Pen GridPen = null!, WordPen = null!, PredictedPen = null!, FinalPen = null!, PlayheadPen = null!;
+
+    private void LoadColours()
+    {
+        Brush Res(string key) => (Brush)FindResource(key);
+        WaveBrush = Res("WaveBrush");
+        LabelBrush = Res("TextDimBrush");
+        FaintBrush = Res("TextFaintBrush");
+        GuessBrush = Res("DangerBrush");
+        GridPen = FrozenPen(Res("GridLineBrush"), 1);
+        WordPen = FrozenPen(Res("WordLineBrush"), 1);
+        PredictedPen = FrozenPen(Res("PredictedPitchBrush"), 1.3, DashStyles.Dash);
+        FinalPen = FrozenPen(Res("AccentBrush"), 2.2);
+        PlayheadPen = FrozenPen(Res("MarkerBrush"), 1.5);
+    }
+
+    private void OnThemeChanged()
+    {
+        LoadColours();
+        InvalidateVisual();
+    }
 
     private static Brush Frozen(Color c)
     {
@@ -75,6 +90,13 @@ public sealed class ProsodyView : FrameworkElement
     {
         ClipToBounds = true;
         Cursor = Cursors.Hand;
+        LoadColours();
+        Loaded += (_, _) =>
+        {
+            ThemeManager.Changed += OnThemeChanged;
+            OnThemeChanged();
+        };
+        Unloaded += (_, _) => ThemeManager.Changed -= OnThemeChanged;
     }
 
     private FormattedText Text(string s, double size, Brush brush) =>

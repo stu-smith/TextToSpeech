@@ -1,5 +1,6 @@
 using System.Windows;
 using System.Windows.Threading;
+using TtsStudio.App.Services;
 using TtsStudio.App.Views;
 
 namespace TtsStudio.App;
@@ -10,7 +11,9 @@ public partial class App : Application
     {
         base.OnStartup(e);
         DispatcherUnhandledException += OnUnhandled;
-        var window = new MainWindow(e.Args.FirstOrDefault());
+        var settings = AppSettings.Load();
+        ThemeManager.Apply(settings.Theme);
+        var window = new MainWindow(settings, e.Args.FirstOrDefault());
         MainWindow = window;
         window.Show();
     }
