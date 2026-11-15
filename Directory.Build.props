@@ -1,0 +1,11 @@
+<Project>
+  <PropertyGroup>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <Version>0.1.0</Version>
+    <Authors>Stu Smith</Authors>
+    <Product>TTS Studio</Product>
+    <Copyright>Copyright (C) 2026 Stu Smith. Licensed under the GNU GPL v3 or later.</Copyright>
+  </PropertyGroup>
+</Project>

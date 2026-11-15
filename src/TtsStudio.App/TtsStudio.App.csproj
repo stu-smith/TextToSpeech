@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <RootNamespace>TtsStudio.App</RootNamespace>
+    <AssemblyName>TtsStudio</AssemblyName>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TtsStudio.Core\TtsStudio.Core.csproj" />
+    <!-- Ship the MCP server next to the app so users can point their coding agent at it. -->
+    <ProjectReference Include="..\TtsStudio.Mcp\TtsStudio.Mcp.csproj" />
+  </ItemGroup>
+
+</Project>

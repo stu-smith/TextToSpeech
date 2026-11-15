@@ -1,0 +1,651 @@
+<Window x:Class="TtsStudio.App.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:c="clr-namespace:TtsStudio.App.Controls"
+        xmlns:vm="clr-namespace:TtsStudio.App.ViewModels"
+        x:Name="Root"
+        Title="{Binding Title}" Width="1440" Height="880" MinWidth="1000" MinHeight="620"
+        Background="{StaticResource BgBrush}" Foreground="{StaticResource TextBrush}"
+        FontFamily="{StaticResource UiFont}" FontSize="13"
+        UseLayoutRounding="True" TextOptions.TextFormattingMode="Display">
+
+    <Window.Resources>
+        <c:BoolToVisibility x:Key="Visible" />
+        <c:BoolToVisibility x:Key="Hidden" Invert="True" />
+        <c:Not x:Key="Not" />
+        <c:NullToVisibility x:Key="VisibleIfSet" />
+        <c:NullToVisibility x:Key="VisibleIfNotSet" Invert="True" />
+        <c:NullToEmpty x:Key="NullToEmpty" />
+        <c:NullableDoubleToString x:Key="DoubleToString" />
+        <c:RegionBrush x:Key="RegionBrush" />
+        <c:RangeText x:Key="RangeText" />
+        <c:FirstLine x:Key="FirstLine" />
+        <c:Seconds x:Key="Seconds" />
+
+        <!-- Toolbar button: icon + label. -->
+        <Style x:Key="ToolButton" TargetType="Button" BasedOn="{StaticResource SubtleButton}">
+            <Setter Property="Margin" Value="1,0" />
+            <Setter Property="Padding" Value="9,6" />
+        </Style>
+
+        <Style x:Key="Section" TargetType="TextBlock" BasedOn="{StaticResource HeaderText}" />
+
+        <ContextMenu x:Key="DesignerMenu">
+            <MenuItem Header="Add region" Command="{Binding AddRegionCommand}" InputGestureText="Ctrl+R">
+                <MenuItem.Icon><TextBlock Style="{StaticResource Icon}" Text="&#xE710;" /></MenuItem.Icon>
+            </MenuItem>
+            <Separator />
+            <MenuItem Header="Emphasise" Command="{Binding ApplyPresetCommand}" CommandParameter="emphasis" InputGestureText="Ctrl+E" />
+            <MenuItem Header="Rising (question)" Command="{Binding ApplyPresetCommand}" CommandParameter="rise" />
+            <MenuItem Header="Falling (statement)" Command="{Binding ApplyPresetCommand}" CommandParameter="fall" />
+            <MenuItem Header="Slower" Command="{Binding ApplyPresetCommand}" CommandParameter="slower" />
+            <MenuItem Header="Faster" Command="{Binding ApplyPresetCommand}" CommandParameter="faster" />
+            <MenuItem Header="Louder" Command="{Binding ApplyPresetCommand}" CommandParameter="louder" />
+            <MenuItem Header="Softer" Command="{Binding ApplyPresetCommand}" CommandParameter="softer" />
+            <MenuItem Header="Flat (monotone)" Command="{Binding ApplyPresetCommand}" CommandParameter="monotone" />
+            <MenuItem Header="Pause after" Command="{Binding ApplyPresetCommand}" CommandParameter="pause" />
+            <MenuItem Header="Pronunciation…" Command="{Binding ApplyPresetCommand}" CommandParameter="pronunciation" InputGestureText="Ctrl+P" />
+            <Separator />
+            <MenuItem Header="Play region" Command="{Binding PlayRegionCommand}">
+                <MenuItem.Icon><TextBlock Style="{StaticResource Icon}" Text="&#xE768;" /></MenuItem.Icon>
+            </MenuItem>
+            <MenuItem Header="Delete region" Command="{Binding DeleteRegionCommand}" InputGestureText="Del">
+                <MenuItem.Icon><TextBlock Style="{StaticResource Icon}" Text="&#xE74D;" /></MenuItem.Icon>
+            </MenuItem>
+        </ContextMenu>
+    </Window.Resources>
+
+    <Window.InputBindings>
+        <KeyBinding Key="N" Modifiers="Control" Command="{Binding NewCommand}" />
+        <KeyBinding Key="O" Modifiers="Control" Command="{Binding OpenCommand}" />
+        <KeyBinding Key="S" Modifiers="Control" Command="{Binding SaveProjectCommand}" />
+        <KeyBinding Key="S" Modifiers="Control+Shift" Command="{Binding SaveAsCommand}" />
+        <KeyBinding Key="Z" Modifiers="Control" Command="{Binding UndoCommand}" />
+        <KeyBinding Key="Y" Modifiers="Control" Command="{Binding RedoCommand}" />
+        <KeyBinding Key="Z" Modifiers="Control+Shift" Command="{Binding RedoCommand}" />
+        <KeyBinding Key="F5" Command="{Binding PlayCommand}" />
+        <KeyBinding Key="F6" Command="{Binding PlayBaselineCommand}" />
+        <KeyBinding Key="F2" Command="{Binding ToggleEditTextCommand}" />
+        <KeyBinding Key="R" Modifiers="Control" Command="{Binding AddRegionCommand}" />
+        <KeyBinding Key="E" Modifiers="Control" Command="{Binding ApplyPresetCommand}" CommandParameter="emphasis" />
+        <KeyBinding Key="P" Modifiers="Control" Command="{Binding ApplyPresetCommand}" CommandParameter="pronunciation" />
+        <KeyBinding Key="M" Modifiers="Control" Command="{Binding AddSampleCommand}" />
+    </Window.InputBindings>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- ============================================================ toolbar -->
+        <Border Background="{StaticResource PanelBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1" Padding="12,6">
+            <DockPanel LastChildFill="False">
+                <StackPanel Orientation="Horizontal" DockPanel.Dock="Left" Margin="2,0,14,0">
+                    <Border Width="26" Height="26" CornerRadius="7" VerticalAlignment="Center">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                <GradientStop Color="#7B93FF" Offset="0" />
+                                <GradientStop Color="#3FC8C9" Offset="1" />
+                            </LinearGradientBrush>
+                        </Border.Background>
+                        <TextBlock Text="&#xE767;" Style="{StaticResource Icon}" Foreground="#0E1020" HorizontalAlignment="Center" FontSize="13" />
+                    </Border>
+                    <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
+                        <TextBlock Text="TTS Studio" FontWeight="SemiBold" FontSize="13" />
+                        <TextBlock Text="{Binding ProjectFileLabel}" Foreground="{StaticResource TextFaintBrush}" FontSize="11" MaxWidth="260" TextTrimming="CharacterEllipsis" ToolTip="{Binding ProjectFileLabel}" />
+                    </StackPanel>
+                </StackPanel>
+
+                <Border Style="{StaticResource VSeparator}" DockPanel.Dock="Left" />
+                <Button Style="{StaticResource ToolButton}" Command="{Binding NewCommand}" ToolTip="New project (Ctrl+N)" DockPanel.Dock="Left">
+                    <TextBlock Style="{StaticResource Icon}" Text="&#xE8A5;" />
+                </Button>
+                <Button Style="{StaticResource ToolButton}" Command="{Binding OpenCommand}" ToolTip="Open project (Ctrl+O)" DockPanel.Dock="Left">
+                    <TextBlock Style="{StaticResource Icon}" Text="&#xE8E5;" />
+                </Button>
+                <Button Style="{StaticResource ToolButton}" Command="{Binding SaveProjectCommand}" ToolTip="Save (Ctrl+S)" DockPanel.Dock="Left">
+                    <TextBlock Style="{StaticResource Icon}" Text="&#xE74E;" />
+                </Button>
+                <Button Style="{StaticResource ToolButton}" Command="{Binding SaveAsCommand}" ToolTip="Save as (Ctrl+Shift+S)" DockPanel.Dock="Left">
+                    <TextBlock Style="{StaticResource Icon}" Text="&#xE792;" />
+                </Button>
+                <Border Style="{StaticResource VSeparator}" DockPanel.Dock="Left" />
+                <Button Style="{StaticResource ToolButton}" Command="{Binding UndoCommand}" ToolTip="Undo (Ctrl+Z)" DockPanel.Dock="Left">
+                    <TextBlock Style="{StaticResource Icon}" Text="&#xE7A7;" />
+                </Button>
+                <Button Style="{StaticResource ToolButton}" Command="{Binding RedoCommand}" ToolTip="Redo (Ctrl+Y)" DockPanel.Dock="Left">
+                    <TextBlock Style="{StaticResource Icon}" Text="&#xE7A6;" />
+                </Button>
+                <Border Style="{StaticResource VSeparator}" DockPanel.Dock="Left" />
+
+                <Button Style="{StaticResource AccentButton}" Command="{Binding PlayCommand}" DockPanel.Dock="Left" Margin="4,0" Padding="14,6"
+                        ToolTip="Render and play the sample (F5)">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock FontFamily="{StaticResource IconFont}" FontSize="14" VerticalAlignment="Center">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Text" Value="&#xE768;" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Player.IsPlaying}" Value="True">
+                                            <Setter Property="Text" Value="&#xE71A;" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                        <TextBlock Margin="8,0,0,0" MinWidth="30">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Text" Value="Play" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Player.IsPlaying}" Value="True">
+                                            <Setter Property="Text" Value="Stop" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </StackPanel>
+                </Button>
+                <Button Style="{StaticResource ToolButton}" Command="{Binding PlayBaselineCommand}" DockPanel.Dock="Left"
+                        ToolTip="Play without any prosody edits, to compare (F6)">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Style="{StaticResource Icon}" Text="&#xE8AB;" />
+                        <TextBlock Text="A/B" Margin="7,0,0,0" />
+                    </StackPanel>
+                </Button>
+                <Border Style="{StaticResource VSeparator}" DockPanel.Dock="Left" />
+                <Button Style="{StaticResource ToolButton}" Command="{Binding ExportSampleCommand}" DockPanel.Dock="Left" ToolTip="Export this sample to an audio file">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Style="{StaticResource Icon}" Text="&#xEDE1;" />
+                        <TextBlock Text="Export" Margin="7,0,0,0" />
+                    </StackPanel>
+                </Button>
+                <Button Style="{StaticResource ToolButton}" Command="{Binding ExportAllCommand}" DockPanel.Dock="Left" ToolTip="Export every sample to the project's export folder">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Style="{StaticResource Icon}" Text="&#xE896;" />
+                        <TextBlock Text="Export all" Margin="7,0,0,0" />
+                    </StackPanel>
+                </Button>
+
+                <!-- right side -->
+                <Button Style="{StaticResource ToolButton}" Command="{Binding ShowGuideCommand}" DockPanel.Dock="Right" ToolTip="Speech reference: properties and phonemes">
+                    <TextBlock Style="{StaticResource Icon}" Text="&#xE82D;" />
+                </Button>
+                <Button Style="{StaticResource ToolButton}" Command="{Binding ShowMcpSetupCommand}" DockPanel.Dock="Right" ToolTip="Connect a coding agent (MCP server)">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Style="{StaticResource Icon}" Text="&#xE703;" />
+                        <TextBlock Text="MCP" Margin="7,0,0,0" />
+                    </StackPanel>
+                </Button>
+                <Button x:Name="EnginePill" DockPanel.Dock="Right" Margin="0,0,8,0" Padding="10,4" Command="{Binding ShowEngineLogCommand}"
+                        Background="{StaticResource Panel2Brush}" BorderBrush="{StaticResource BorderStrongBrush}" ToolTip="Speech engine status (click for the log)">
+                    <StackPanel Orientation="Horizontal">
+                        <Ellipse Width="8" Height="8" VerticalAlignment="Center">
+                            <Ellipse.Style>
+                                <Style TargetType="Ellipse">
+                                    <Setter Property="Fill" Value="{StaticResource TextFaintBrush}" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Engine.State}" Value="Ready">
+                                            <Setter Property="Fill" Value="{StaticResource SuccessBrush}" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding Engine.State}" Value="Installing">
+                                            <Setter Property="Fill" Value="{StaticResource WarningBrush}" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding Engine.State}" Value="Starting">
+                                            <Setter Property="Fill" Value="{StaticResource WarningBrush}" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding Engine.State}" Value="Failed">
+                                            <Setter Property="Fill" Value="{StaticResource DangerBrush}" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Ellipse.Style>
+                        </Ellipse>
+                        <TextBlock Text="{Binding Engine.StatusText}" Margin="8,0,0,0" FontSize="12" MaxWidth="280" TextTrimming="CharacterEllipsis" />
+                    </StackPanel>
+                </Button>
+            </DockPanel>
+        </Border>
+        <ProgressBar Grid.Row="0" VerticalAlignment="Bottom" IsIndeterminate="True"
+                     Visibility="{Binding EngineBusy, Converter={StaticResource Visible}}" />
+
+        <!-- ============================================================ main area -->
+        <Grid Grid.Row="1" Margin="10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="270" MinWidth="200" />
+                <ColumnDefinition Width="10" />
+                <ColumnDefinition Width="*" MinWidth="420" />
+                <ColumnDefinition Width="10" />
+                <ColumnDefinition Width="350" MinWidth="280" />
+            </Grid.ColumnDefinitions>
+
+            <!-- left: samples / project -->
+            <Border Style="{StaticResource Card}">
+                <DockPanel>
+                    <Border DockPanel.Dock="Top" Margin="10,10,10,4" Background="{StaticResource BgBrush}" CornerRadius="7" Padding="3">
+                        <UniformGrid Columns="2">
+                            <RadioButton Style="{StaticResource SegmentRadio}" Content="Samples" IsChecked="{Binding ShowProjectTab, Converter={StaticResource Not}}" />
+                            <RadioButton Style="{StaticResource SegmentRadio}" Content="Project" IsChecked="{Binding ShowProjectTab}" />
+                        </UniformGrid>
+                    </Border>
+
+                    <Grid>
+                    <!-- samples -->
+                    <DockPanel Visibility="{Binding ShowProjectTab, Converter={StaticResource Hidden}}">
+                        <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Margin="8,4,8,8">
+                            <Button Style="{StaticResource SubtleButton}" Command="{Binding AddSampleCommand}" ToolTip="New sample (Ctrl+M)">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Style="{StaticResource Icon}" Text="&#xE710;" />
+                                    <TextBlock Text="New" Margin="6,0,0,0" />
+                                </StackPanel>
+                            </Button>
+                            <Button Style="{StaticResource SubtleButton}" Command="{Binding ImportMarkupCommand}" ToolTip="New sample from annotated markup">
+                                <TextBlock Style="{StaticResource Icon}" Text="&#xE943;" />
+                            </Button>
+                            <Button Style="{StaticResource SubtleButton}" Command="{Binding DuplicateSampleCommand}" ToolTip="Duplicate sample">
+                                <TextBlock Style="{StaticResource Icon}" Text="&#xE8C8;" />
+                            </Button>
+                            <Button Style="{StaticResource SubtleButton}" Command="{Binding MoveSampleCommand}" CommandParameter="up" ToolTip="Move up">
+                                <TextBlock Style="{StaticResource Icon}" Text="&#xE70E;" />
+                            </Button>
+                            <Button Style="{StaticResource SubtleButton}" Command="{Binding MoveSampleCommand}" CommandParameter="down" ToolTip="Move down">
+                                <TextBlock Style="{StaticResource Icon}" Text="&#xE70D;" />
+                            </Button>
+                            <Button Style="{StaticResource SubtleButton}" Command="{Binding DeleteSampleCommand}" ToolTip="Delete sample">
+                                <TextBlock Style="{StaticResource Icon}" Text="&#xE74D;" />
+                            </Button>
+                        </StackPanel>
+                        <ListBox ItemsSource="{Binding Project.Samples}" SelectedItem="{Binding SelectedSample}" Margin="6,4,6,0">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Margin="4,0,0,0">
+                                        <DockPanel>
+                                            <TextBlock DockPanel.Dock="Right" Foreground="{StaticResource TextFaintBrush}" FontSize="11" VerticalAlignment="Center"
+                                                       Text="{Binding Regions.Count, StringFormat={}{0} ◆}" ToolTip="Regions" />
+                                            <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" />
+                                        </DockPanel>
+                                        <TextBlock Text="{Binding Text, Converter={StaticResource FirstLine}}" Foreground="{StaticResource TextDimBrush}"
+                                                   FontSize="12" TextTrimming="CharacterEllipsis" Margin="0,2,0,0" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </DockPanel>
+
+                    <!-- project settings and lexicon -->
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="16,0,16,12" Visibility="{Binding ShowProjectTab, Converter={StaticResource Visible}}">
+                    <StackPanel>
+                        <TextBlock Style="{StaticResource Section}" Text="PROJECT" Margin="0,6,0,6" />
+                        <TextBlock Style="{StaticResource LabelText}" Text="Name" />
+                        <TextBox Text="{Binding Project.Name, UpdateSourceTrigger=PropertyChanged}" />
+                        <TextBlock Style="{StaticResource LabelText}" Text="Default voice" />
+                        <ComboBox ItemsSource="{Binding VoiceList}" SelectedValuePath="Id" DisplayMemberPath="Display"
+                                  SelectedValue="{Binding Project.DefaultVoice}" MaxDropDownHeight="420" />
+                        <c:OptionalNumber Label="Default speed" Value="{Binding Project.DefaultSpeed}" AllowUnset="False"
+                                          Minimum="0.5" Maximum="2" Step="0.05" DefaultValue="1" Unit="×" Margin="0,8,0,0" />
+
+                        <TextBlock Style="{StaticResource Section}" Text="EXPORT" />
+                        <TextBlock Style="{StaticResource LabelText}" Text="Folder (relative to the project file)" />
+                        <DockPanel>
+                            <Button DockPanel.Dock="Right" Style="{StaticResource SubtleButton}" Command="{Binding OpenExportFolderCommand}" ToolTip="Open the export folder" Margin="4,0,0,0">
+                                <TextBlock Style="{StaticResource Icon}" Text="&#xE838;" />
+                            </Button>
+                            <TextBox Text="{Binding Project.ExportFolder, UpdateSourceTrigger=PropertyChanged}" />
+                        </DockPanel>
+                        <TextBlock Style="{StaticResource LabelText}" Text="Format" />
+                        <ComboBox ItemsSource="{Binding Formats}" SelectedItem="{Binding Project.ExportFormat}" />
+
+                        <DockPanel Margin="0,14,0,6">
+                            <Button DockPanel.Dock="Right" Style="{StaticResource SubtleButton}" Command="{Binding AddLexiconEntryCommand}" Padding="6,2">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Style="{StaticResource Icon}" Text="&#xE710;" FontSize="11" />
+                                    <TextBlock Text="Add" Margin="5,0,0,0" FontSize="12" />
+                                </StackPanel>
+                            </Button>
+                            <TextBlock Style="{StaticResource Section}" Text="LEXICON" Margin="0" VerticalAlignment="Center" />
+                        </DockPanel>
+                        <TextBlock Style="{StaticResource DimText}" FontSize="12" Margin="0,0,0,8"
+                                   Text="Pronunciations used everywhere in the project. A region's own pronunciation wins." />
+                        <ItemsControl ItemsSource="{Binding Project.Lexicon}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Margin="0,0,0,6">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBox Text="{Binding Word, UpdateSourceTrigger=PropertyChanged}" ToolTip="Word" Margin="0,0,4,0" />
+                                        <TextBox Grid.Column="1" Text="{Binding Phonemes, UpdateSourceTrigger=PropertyChanged}" ToolTip="Phonemes"
+                                                 FontFamily="{StaticResource PhonemeFont}" />
+                                        <Button Grid.Column="2" Style="{StaticResource SubtleButton}" Padding="6,4" Margin="2,0,0,0" ToolTip="Remove"
+                                                Command="{Binding DataContext.RemoveLexiconEntryCommand, ElementName=Root}" CommandParameter="{Binding}">
+                                            <TextBlock Style="{StaticResource Icon}" Text="&#xE711;" FontSize="11" />
+                                        </Button>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </ScrollViewer>
+                    </Grid>
+                </DockPanel>
+            </Border>
+
+            <!-- centre: designer + prosody -->
+            <Grid Grid.Column="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" MinHeight="200" />
+                    <RowDefinition Height="10" />
+                    <RowDefinition Height="230" MinHeight="140" />
+                </Grid.RowDefinitions>
+
+                <Border Style="{StaticResource Card}">
+                    <DockPanel>
+                        <!-- designer header -->
+                        <Border DockPanel.Dock="Top" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1" Padding="16,10,10,10">
+                            <DockPanel>
+                                <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
+                                    <CheckBox Content="Snap to words" IsChecked="{Binding SnapToWords}" Margin="0,0,14,0" Foreground="{StaticResource TextDimBrush}"
+                                              ToolTip="Selections and region edges snap to whole words (hold Alt to override)" />
+                                    <CheckBox Content="Live render" IsChecked="{Binding AutoRender}" Margin="0,0,12,0" Foreground="{StaticResource TextDimBrush}"
+                                              ToolTip="Re-render automatically after each change, so phonemes and pitch stay current" />
+                                    <ToggleButton IsChecked="{Binding IsEditingText}" Padding="10,5" ToolTip="Edit the text (F2); regions follow the words they cover">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Style="{StaticResource Icon}" Text="&#xE70F;" />
+                                            <TextBlock Text="Edit text" Margin="7,0,0,0" />
+                                        </StackPanel>
+                                    </ToggleButton>
+                                </StackPanel>
+                                <StackPanel VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding SelectedSample.Name}" Style="{StaticResource TitleText}" TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Foreground="{StaticResource TextFaintBrush}" FontSize="12" Margin="0,2,0,0" Text="Select text, then right-click (or Ctrl+R) to add a region. Click a region to edit it." />
+                                </StackPanel>
+                            </DockPanel>
+                        </Border>
+
+                        <Grid>
+                            <ScrollViewer x:Name="DesignerScroll" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                                          Visibility="{Binding IsEditingText, Converter={StaticResource Hidden}}">
+                                <c:AnnotatedTextView x:Name="Designer"
+                                                     Text="{Binding SelectedSample.Text}"
+                                                     Regions="{Binding SelectedSample.Regions}"
+                                                     SelectedRegion="{Binding SelectedRegion}"
+                                                     SelectionStart="{Binding SelectionStart}"
+                                                     SelectionEnd="{Binding SelectionEnd}"
+                                                     Tokens="{Binding Tokens}"
+                                                     PlaybackTime="{Binding Player.Position}"
+                                                     SnapToWords="{Binding SnapToWords}"
+                                                     HoverInfo="{Binding HoverInfo, Mode=OneWayToSource}"
+                                                     Placeholder="This sample has no text yet. Press F2 or click “Edit text” to write it."
+                                                     ContextMenu="{StaticResource DesignerMenu}" />
+                            </ScrollViewer>
+                            <TextBox x:Name="TextEditor" Visibility="{Binding IsEditingText, Converter={StaticResource Visible}}"
+                                     AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto"
+                                     VerticalContentAlignment="Top" FontSize="22" Padding="22,18" BorderThickness="0" Background="Transparent"
+                                     TextChanged="OnEditorTextChanged" />
+                            <TextBlock Visibility="{Binding IsEditingText, Converter={StaticResource Visible}}" Foreground="{StaticResource TextFaintBrush}"
+                                       HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,16,10" FontSize="12"
+                                       Text="Editing text. Regions stay attached to their words. Press F2 or Esc when done." />
+                        </Grid>
+                    </DockPanel>
+                </Border>
+
+                <GridSplitter Grid.Row="1" HorizontalAlignment="Stretch" Background="Transparent" ResizeDirection="Rows" />
+
+                <!-- prosody / playback -->
+                <Border Grid.Row="2" Style="{StaticResource Card}">
+                    <DockPanel>
+                        <DockPanel DockPanel.Dock="Top" Margin="16,10,12,0">
+                            <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
+                                <TextBlock Foreground="{StaticResource TextFaintBrush}" FontSize="11" VerticalAlignment="Center" Margin="0,0,10,0">
+                                    <Run Text="┄ predicted" />
+                                    <Run Text="  ━ " Foreground="{StaticResource AccentBrush}" /><Run Text="after edits" />
+                                </TextBlock>
+                            </StackPanel>
+                            <TextBlock Style="{StaticResource HeaderText}" Text="PITCH AND TIMING" Margin="0" VerticalAlignment="Center" />
+                            <TextBlock Text="{Binding ResultSummary}" Foreground="{StaticResource TextFaintBrush}" FontSize="12" Margin="14,0,0,0" VerticalAlignment="Center" />
+                            <TextBlock Text="  · out of date" Foreground="{StaticResource WarningBrush}" FontSize="12" VerticalAlignment="Center"
+                                       Visibility="{Binding IsResultStale, Converter={StaticResource Visible}}" />
+                            <TextBlock Text="  · rendering…" Foreground="{StaticResource AccentBrush}" FontSize="12" VerticalAlignment="Center"
+                                       Visibility="{Binding IsRendering, Converter={StaticResource Visible}}" />
+                        </DockPanel>
+                        <c:ProsodyView Margin="4,6,6,8" Result="{Binding Result}" PlaybackTime="{Binding Player.Position}"
+                                       IsStale="{Binding IsResultStale}" SeekCommand="{Binding SeekCommand}"
+                                       HighlightStart="{Binding SelectedRegion.Start, FallbackValue=-1}"
+                                       HighlightEnd="{Binding SelectedRegion.End, FallbackValue=-1}"
+                                       HighlightBrush="{Binding SelectedRegion, Converter={StaticResource RegionBrush}, ConverterParameter=40}" />
+                    </DockPanel>
+                </Border>
+            </Grid>
+
+            <!-- right: properties -->
+            <Border Grid.Column="4" Style="{StaticResource Card}">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="18,6,18,16">
+                    <StackPanel>
+
+                        <TextBlock Visibility="{Binding SelectedSample, Converter={StaticResource VisibleIfNotSet}}" Style="{StaticResource DimText}"
+                                   Margin="0,20,0,0" Text="Add a sample to get started." />
+
+                        <!-- ==================== selection actions -->
+                        <StackPanel Visibility="{Binding ShowSelectionPanel, Converter={StaticResource Visible}}">
+                            <TextBlock Style="{StaticResource Section}" Text="SELECTION" />
+                            <TextBlock Text="{Binding SelectionText}" FontSize="15" TextWrapping="Wrap" Margin="0,0,0,10" />
+                            <Button Style="{StaticResource AccentButton}" Command="{Binding AddRegionCommand}" HorizontalAlignment="Left" Margin="0,0,0,12">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Style="{StaticResource Icon}" Text="&#xE710;" />
+                                    <TextBlock Text="Add region" Margin="8,0,0,0" />
+                                </StackPanel>
+                            </Button>
+                            <TextBlock Style="{StaticResource DimText}" FontSize="12" Text="…or start from a style:" Margin="0,0,0,8" />
+                            <ItemsControl ItemsSource="{Binding PresetList}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Button Style="{StaticResource ChipButton}" Content="{Binding Name}" ToolTip="{Binding Hint}"
+                                                Command="{Binding DataContext.AddRegionCommand, ElementName=Root}" CommandParameter="{Binding Key}" />
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+
+                        <!-- ==================== region editor -->
+                        <StackPanel Visibility="{Binding DataContext.ShowRegionPanel, ElementName=Root, Converter={StaticResource Visible}}" DataContext="{Binding SelectedRegion}">
+                            <DockPanel Margin="0,8,0,0">
+                                <Button DockPanel.Dock="Right" Style="{StaticResource DangerButton}" Command="{Binding DataContext.DeleteRegionCommand, ElementName=Root}" ToolTip="Delete region (Del)">
+                                    <TextBlock Style="{StaticResource Icon}" Text="&#xE74D;" />
+                                </Button>
+                                <Button DockPanel.Dock="Right" Style="{StaticResource SubtleButton}" Command="{Binding DataContext.PlayRegionCommand, ElementName=Root}" ToolTip="Play just this region">
+                                    <TextBlock Style="{StaticResource Icon}" Text="&#xE768;" />
+                                </Button>
+                                <Button DockPanel.Dock="Left" Style="{StaticResource SubtleButton}" Command="{Binding DataContext.DeselectRegionCommand, ElementName=Root}" ToolTip="Back to the sample (Esc)" Padding="6,5" Margin="-8,0,4,0">
+                                    <TextBlock Style="{StaticResource Icon}" Text="&#xE72B;" />
+                                </Button>
+                                <Border Width="10" Height="10" CornerRadius="3" Background="{Binding Converter={StaticResource RegionBrush}}" VerticalAlignment="Center" Margin="0,0,8,0" />
+                                <TextBlock Style="{StaticResource HeaderText}" Text="REGION" Margin="0" VerticalAlignment="Center" />
+                            </DockPanel>
+                            <TextBlock FontSize="16" TextWrapping="Wrap" Margin="0,8,0,2">
+                                <TextBlock.Text>
+                                    <MultiBinding Converter="{StaticResource RangeText}">
+                                        <Binding Path="Start" />
+                                        <Binding Path="End" />
+                                        <Binding Path="DataContext.SelectedSample.Text" ElementName="Root" />
+                                    </MultiBinding>
+                                </TextBlock.Text>
+                            </TextBlock>
+                            <TextBlock Foreground="{StaticResource TextFaintBrush}" FontSize="12" Text="{Binding Summary}" TextWrapping="Wrap" />
+
+                            <TextBlock Style="{StaticResource LabelText}" Text="Label (optional)" />
+                            <TextBox Text="{Binding Label, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource NullToEmpty}}" />
+
+                            <TextBlock Style="{StaticResource Section}" Text="STYLES" />
+                            <ItemsControl ItemsSource="{Binding DataContext.PresetList, ElementName=Root}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Button Style="{StaticResource ChipButton}" Content="{Binding Name}" ToolTip="{Binding Hint}"
+                                                Command="{Binding DataContext.ApplyPresetCommand, ElementName=Root}" CommandParameter="{Binding Key}" />
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                            <!-- pronunciation -->
+                            <TextBlock Style="{StaticResource Section}" Text="PRONUNCIATION" />
+                            <DockPanel>
+                                <Button DockPanel.Dock="Right" Style="{StaticResource SubtleButton}" Margin="4,0,0,0" ToolTip="Fill in the dictionary pronunciation as a starting point"
+                                        Command="{Binding DataContext.LookupPronunciationCommand, ElementName=Root}">
+                                    <TextBlock Style="{StaticResource Icon}" Text="&#xE721;" />
+                                </Button>
+                                <TextBox x:Name="PronunciationBox" FontFamily="{StaticResource PhonemeFont}" FontSize="15"
+                                         Text="{Binding Pronunciation, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource NullToEmpty}}"
+                                         ToolTip="Phonemes for the covered word(s), e.g. ˈIɑs. Leave empty to use the dictionary." />
+                            </DockPanel>
+                            <WrapPanel x:Name="PhonemePalette" Margin="0,6,0,0" />
+                            <DockPanel Margin="0,6,0,0">
+                                <Button DockPanel.Dock="Right" Style="{StaticResource SubtleButton}" FontSize="12" Padding="8,3"
+                                        Command="{Binding DataContext.AddToLexiconCommand, ElementName=Root}"
+                                        ToolTip="Use this pronunciation for the word everywhere in the project">
+                                    <TextBlock Text="Add to lexicon" Foreground="{StaticResource AccentBrush}" />
+                                </Button>
+                                <TextBlock Text="Stress" VerticalAlignment="Center" Foreground="{StaticResource TextDimBrush}" Margin="0,0,10,0" />
+                                <ComboBox Width="150" HorizontalAlignment="Left" SelectedValuePath="Tag"
+                                          SelectedValue="{Binding Stress, Converter={StaticResource DoubleToString}}"
+                                          ToolTip="Adjust lexical stress (ignored when a pronunciation is given)">
+                                    <ComboBoxItem Content="Unchanged" Tag="" />
+                                    <ComboBoxItem Content="Remove stress" Tag="-2" />
+                                    <ComboBoxItem Content="Lower" Tag="-1" />
+                                    <ComboBoxItem Content="Raise" Tag="1" />
+                                    <ComboBoxItem Content="Force primary" Tag="2" />
+                                </ComboBox>
+                            </DockPanel>
+
+                            <!-- inflection -->
+                            <TextBlock Style="{StaticResource Section}" Text="INFLECTION" />
+                            <c:OptionalNumber Label="Pitch" Value="{Binding Pitch}" Minimum="-12" Maximum="12" Step="0.5" DefaultValue="2" Unit="st" ShowSign="True"
+                                              ToolTip="Shift the pitch, in semitones" />
+                            <DockPanel Margin="0,4,0,4">
+                                <TextBlock Text="Contour" VerticalAlignment="Center" Foreground="{StaticResource TextBrush}" Width="70" />
+                                <ComboBox SelectedValuePath="Tag" SelectedValue="{Binding Contour, Converter={StaticResource NullToEmpty}}"
+                                          ToolTip="A pitch glide across the region">
+                                    <ComboBoxItem Content="None" Tag="" />
+                                    <ComboBoxItem Content="Rise ↗  (question)" Tag="rise" />
+                                    <ComboBoxItem Content="Fall ↘  (statement)" Tag="fall" />
+                                </ComboBox>
+                            </DockPanel>
+                            <c:OptionalNumber Label="Glide size" Value="{Binding ContourSemitones}" Minimum="0" Maximum="12" Step="0.5" DefaultValue="4" Unit="st"
+                                              ToolTip="How far the contour rises or falls (default 4 semitones)" />
+                            <c:OptionalNumber Label="Expressiveness" Value="{Binding PitchRange}" Minimum="0" Maximum="2" Step="0.05" DefaultValue="1.5" Unit="×"
+                                              ToolTip="Pitch range: 0 is monotone, 1 natural, 2 very animated" />
+
+                            <!-- timing -->
+                            <TextBlock Style="{StaticResource Section}" Text="TIMING" />
+                            <c:OptionalNumber Label="Rate" Value="{Binding Rate}" Minimum="0.3" Maximum="2.5" Step="0.05" DefaultValue="0.85" Unit="×"
+                                              ToolTip="Speaking rate: above 1 is faster" />
+                            <c:OptionalNumber Label="Pause before" Value="{Binding PauseBeforeMs}" Minimum="0" Maximum="3000" Step="50" DefaultValue="300" Unit="ms" />
+                            <c:OptionalNumber Label="Pause after" Value="{Binding PauseAfterMs}" Minimum="0" Maximum="3000" Step="50" DefaultValue="400" Unit="ms" />
+
+                            <!-- loudness -->
+                            <TextBlock Style="{StaticResource Section}" Text="LOUDNESS" />
+                            <c:OptionalNumber Label="Volume" Value="{Binding Volume}" Minimum="-20" Maximum="12" Step="0.5" DefaultValue="3" Unit="dB" ShowSign="True" />
+                            <c:OptionalNumber Label="Energy (experimental)" Value="{Binding Energy}" Minimum="-3" Maximum="3" Step="0.1" DefaultValue="1" ShowSign="True"
+                                              ToolTip="Pushes the model's internal energy curve; can change voice quality" />
+
+                            <Button Style="{StaticResource SubtleButton}" HorizontalAlignment="Left" Margin="-8,12,0,0" Foreground="{StaticResource TextDimBrush}"
+                                    Command="{Binding DataContext.ClearRegionPropertiesCommand, ElementName=Root}">
+                                <TextBlock Text="Clear all properties" />
+                            </Button>
+                        </StackPanel>
+
+                        <!-- ==================== sample settings -->
+                        <StackPanel Visibility="{Binding DataContext.ShowSamplePanel, ElementName=Root, Converter={StaticResource Visible}}" DataContext="{Binding SelectedSample}">
+                            <TextBlock Style="{StaticResource Section}" Text="SAMPLE" />
+                            <TextBlock Style="{StaticResource LabelText}" Text="Name" Margin="0,0,0,4" />
+                            <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" />
+                            <TextBlock Style="{StaticResource LabelText}" Text="Export file name" />
+                            <TextBox Text="{Binding FileName, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource NullToEmpty}}"
+                                     ToolTip="Without extension. Leave empty to use the sample name." />
+                            <TextBlock Style="{StaticResource LabelText}" Text="Voice" />
+                            <ComboBox ItemsSource="{Binding DataContext.SampleVoiceOptions, ElementName=Root}" SelectedValuePath="Id" DisplayMemberPath="Display"
+                                      SelectedValue="{Binding Voice, Converter={StaticResource NullToEmpty}}" MaxDropDownHeight="420" />
+                            <c:OptionalNumber Label="Speed" Value="{Binding Speed}" Minimum="0.5" Maximum="2" Step="0.05" DefaultValue="1" Unit="×" Margin="0,10,0,0"
+                                              ToolTip="Untick to use the project's default speed" />
+                            <c:OptionalNumber Label="Pitch" Value="{Binding Pitch}" AllowUnset="False" Minimum="-6" Maximum="6" Step="0.5" Unit="st" ShowSign="True" />
+                            <c:OptionalNumber Label="Expressiveness" Value="{Binding PitchRange}" AllowUnset="False" Minimum="0" Maximum="2" Step="0.05" Unit="×" />
+                            <TextBlock Style="{StaticResource LabelText}" Text="Notes" />
+                            <TextBox Text="{Binding Notes, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource NullToEmpty}}" AcceptsReturn="True"
+                                     TextWrapping="Wrap" MinHeight="54" VerticalContentAlignment="Top" />
+
+                            <TextBlock Style="{StaticResource Section}" Text="REGIONS" />
+                            <TextBlock Style="{StaticResource DimText}" FontSize="12" Text="None yet. Select some text in the designer to add one."
+                                       Visibility="{Binding Regions.Count, Converter={StaticResource VisibleIfNotSet}}" />
+                            <ItemsControl ItemsSource="{Binding Regions}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Button Style="{StaticResource SubtleButton}" HorizontalContentAlignment="Stretch" Padding="8,6" Margin="-8,0,-8,2"
+                                                Command="{Binding DataContext.SelectRegionCommand, ElementName=Root}" CommandParameter="{Binding}">
+                                            <DockPanel>
+                                                <Border Width="4" CornerRadius="2" Background="{Binding Converter={StaticResource RegionBrush}}" Margin="0,0,10,0" />
+                                                <StackPanel>
+                                                    <TextBlock TextTrimming="CharacterEllipsis">
+                                                        <TextBlock.Text>
+                                                            <MultiBinding Converter="{StaticResource RangeText}">
+                                                                <Binding Path="Start" />
+                                                                <Binding Path="End" />
+                                                                <Binding Path="DataContext.SelectedSample.Text" ElementName="Root" />
+                                                            </MultiBinding>
+                                                        </TextBlock.Text>
+                                                    </TextBlock>
+                                                    <TextBlock Text="{Binding Summary}" Foreground="{StaticResource TextFaintBrush}" FontSize="11" TextTrimming="CharacterEllipsis" />
+                                                </StackPanel>
+                                            </DockPanel>
+                                        </Button>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                            <TextBlock Style="{StaticResource Section}" Text="LAST RENDER"
+                                       Visibility="{Binding DataContext.Result, ElementName=Root, Converter={StaticResource VisibleIfSet}}" />
+                            <ItemsControl ItemsSource="{Binding DataContext.Result.Warnings, ElementName=Root}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <DockPanel Margin="0,0,0,6">
+                                            <TextBlock Style="{StaticResource Icon}" Text="&#xE7BA;" Foreground="{StaticResource WarningBrush}" FontSize="12" VerticalAlignment="Top" Margin="0,2,8,0" />
+                                            <TextBlock Text="{Binding}" TextWrapping="Wrap" Foreground="{StaticResource TextDimBrush}" FontSize="12" />
+                                        </DockPanel>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                            <ItemsControl ItemsSource="{Binding DataContext.Result.Phonemes, ElementName=Root}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBox Text="{Binding Mode=OneWay}" IsReadOnly="True" TextWrapping="Wrap" FontFamily="{StaticResource PhonemeFont}"
+                                                 Background="Transparent" BorderThickness="0" Padding="0" Foreground="{StaticResource TextFaintBrush}" FontSize="12"
+                                                 ToolTip="Phonemes sent to the model" />
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+        </Grid>
+
+        <!-- ============================================================ status bar -->
+        <Border Grid.Row="2" Background="{StaticResource PanelBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,1,0,0" Padding="14,5">
+            <DockPanel>
+                <TextBlock DockPanel.Dock="Right" Foreground="{StaticResource TextFaintBrush}" FontSize="12"
+                           Text="F5 play · F6 A/B · F2 edit text · Ctrl+R add region · Ctrl+E emphasise · Del delete" />
+                <TextBlock Text="{Binding Status}" Foreground="{StaticResource TextDimBrush}" FontSize="12" TextTrimming="CharacterEllipsis" MaxWidth="600" />
+                <TextBlock Text="{Binding HoverInfo}" Foreground="{StaticResource TextBrush}" FontSize="12" Margin="24,0" TextTrimming="CharacterEllipsis"
+                           FontFamily="{StaticResource PhonemeFont}" />
+            </DockPanel>
+        </Border>
+    </Grid>
+</Window>

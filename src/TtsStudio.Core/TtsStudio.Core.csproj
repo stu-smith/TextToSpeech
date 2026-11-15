@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>TtsStudio.Core</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+  </ItemGroup>
+
+  <!-- The Python engine ships next to every executable that references Core. -->
+  <ItemGroup>
+    <None Include="..\..\engine\ttsengine\*.py" Link="engine\ttsengine\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\..\engine\pyproject.toml;..\..\engine\uv.lock" Link="engine\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="TtsStudio.Core.Tests" />
+  </ItemGroup>
+
+</Project>
