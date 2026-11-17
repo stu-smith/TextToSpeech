@@ -9,7 +9,11 @@ Regions can overlap freely, and their effects combine. Audio is generated on the
 The app also includes an **MCP server**, so a coding agent can create and edit projects, look
 up pronunciations and render audio.
 
+![TTS Studio with a pronunciation region selected, showing the phoneme palette and the pitch and timing view](screenshots/main-dark.png)
+
 ## Features
+
+![Overlapping regions in the designer, each drawn in its own lane, in the light theme](screenshots/main-overlapping-light.png)
 
 - **Designer**: the text is laid out with each region tinted behind its words and drawn as a
   bar in its own lane, so overlapping regions stay distinct. Drag to select (snaps to whole
@@ -72,7 +76,12 @@ dotnet publish src/TtsStudio.App -c Release -r win-x64 --self-contained -o publi
 ## Connecting a coding agent (MCP)
 
 `TtsStudio.Mcp.exe` sits next to `TtsStudio.exe` and speaks MCP over stdio. The **MCP** button
-in the app shows the exact command for your install. For Claude Code:
+in the app shows the exact command for your install, and can add or remove the server for
+Claude Code and Claude Desktop in one click.
+
+<img src="screenshots/mcp-dark.png" alt="The Connect a coding agent dialog" width="400">
+
+To set it up by hand in Claude Code:
 
 ```sh
 claude mcp add tts-studio -- "C:\path\to\TtsStudio.Mcp.exe"
