@@ -48,9 +48,11 @@ public sealed partial class AudioPlayer : ObservableObject
         _timer.Start();
     }
 
+    /// <summary>Stops and closes the file, since MediaPlayer otherwise keeps it locked and re-rendering it would fail.</summary>
     public void Stop()
     {
         _player.Stop();
+        _player.Close();
         _timer.Stop();
         IsPlaying = false;
         Position = -1;

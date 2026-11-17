@@ -646,7 +646,8 @@ public sealed partial class MainViewModel : ObservableObject
         }
         string key = RenderKey(s);
         SynthesisResult result;
-        if (!baseline && _renders.TryGetValue(s.Id, out var cached) && cached.Key == key && File.Exists(cached.Result.Output))
+        if (_renders.TryGetValue(s.Id, out var cached) && cached.Key == key && File.Exists(cached.Result.Output)
+            && (!baseline || (cached.Result.Baseline is { } b && File.Exists(b.Output))))
         {
             result = cached.Result;
         }
@@ -870,16 +871,7 @@ public sealed partial class MainViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private void ShowMcpSetup()
-    {
-        string exe = Path.Combine(AppContext.BaseDirectory, "TtsStudio.Mcp.exe");
-        string json = JsonSerializer.Serialize(new { mcpServers = new { tts_studio = new { command = exe, args = Array.Empty<string>() } } },
-            new JsonSerializerOptions { WriteIndented = true }).Replace("tts_studio", "tts-studio");
-        Dialog.ShowText(_window, "Connect a coding agent (MCP)",
-            "TTS Studio includes an MCP server so coding agents can create and edit projects, look up pronunciations and render audio. " +
-            "Changes the agent saves show up here automatically.",
-            $"Claude Code:\n  claude mcp add tts-studio -- \"{exe}\"\n\nOther MCP clients (e.g. .mcp.json):\n{json}", 230);
-    }
+    private void ShowMcpSetup() => new McpWindow { Owner = _window }.ShowDialog();
 
     [RelayCommand]
     private void ShowSettings() => new SettingsWindow(Settings, Engine.Runtime) { Owner = _window }.ShowDialog();
