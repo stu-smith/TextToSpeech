@@ -31,6 +31,21 @@ public static class ReferenceRecordings
         return Path.GetRelativePath(baseDir, fullPath);
     }
 
+    /// <summary>Folder next to the project file where recordings made in TTS Studio are kept.</summary>
+    public const string RecordingsFolder = "recordings";
+
+    /// <summary>
+    /// Path for a new recording of a sample: recordings/&lt;sample name&gt;.wav next to the project,
+    /// numbered so earlier takes are kept (and undo can return to them).
+    /// </summary>
+    public static string NewRecordingPath(string projectPath, string sampleName)
+    {
+        string folder = Path.Combine(Path.GetDirectoryName(Path.GetFullPath(projectPath))!, RecordingsFolder);
+        string stem = Exporter.SafeFileName(sampleName), path = Path.Combine(folder, stem + ".wav");
+        for (int n = 2; File.Exists(path); n++) path = Path.Combine(folder, $"{stem} ({n}).wav");
+        return path;
+    }
+
     /// <summary>Re-expresses every sample's recording path for a project saved to a new location.</summary>
     public static void Rebase(Project project, string? oldProjectPath, string newProjectPath)
     {

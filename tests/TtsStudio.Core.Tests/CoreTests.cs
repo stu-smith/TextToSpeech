@@ -290,3 +290,34 @@ public class ReferenceRecordingTests
         Assert.NotEqual(key, SynthesisRequest.For(p, s, "out.wav", projectPath: project).ContentKey());
     }
 }
+
+public class RecordingTests
+{
+    [Fact]
+    public void New_takes_go_in_a_recordings_folder_and_are_numbered()
+    {
+        string dir = Path.Combine(Path.GetTempPath(), "tts-rec-tests", Guid.NewGuid().ToString("N"));
+        string project = Path.Combine(dir, "p.ttsproj");
+        string first = ReferenceRecordings.NewRecordingPath(project, "Intro: take?");
+        Assert.Equal(Path.Combine(dir, "recordings", "Intro_ take_.wav"), first);
+        Directory.CreateDirectory(Path.GetDirectoryName(first)!);
+        File.WriteAllBytes(first, [0]);
+        Assert.Equal(Path.Combine(dir, "recordings", "Intro_ take_ (2).wav"), ReferenceRecordings.NewRecordingPath(project, "Intro: take?"));
+    }
+
+    [Fact]
+    public void Requests_and_results_round_trip()
+    {
+        string path = Path.Combine(Path.GetTempPath(), $"req-{Guid.NewGuid():N}.json");
+        new RecordingRequest { Text = "Hello.", Title = "Greeting", Output = @"C:\x\y.wav" }.Save(path);
+        var req = RecordingRequest.Load(path);
+        Assert.Equal(("Hello.", "Greeting", @"C:\x\y.wav"), (req.Text, req.Title, req.Output));
+
+        Assert.Null(RecordingResult.Load(RecordingRequest.ResultPath(path)));
+        new RecordingResult { Outcome = "saved", Output = req.Output, Seconds = 2.5 }.Save(RecordingRequest.ResultPath(path));
+        var result = RecordingResult.Load(RecordingRequest.ResultPath(path))!;
+        Assert.Equal(("saved", 2.5), (result.Outcome, result.Seconds));
+        File.Delete(path);
+        File.Delete(RecordingRequest.ResultPath(path));
+    }
+}

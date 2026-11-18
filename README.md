@@ -30,11 +30,14 @@ up pronunciations and render audio.
 - **Pitch and timing view**: the model's predicted pitch (dashed) against the pitch after your
   edits (solid), with the waveform, word timings and the selected region's span. Click it to
   play from that point.
-- **Human reading**: attach a recording of someone reading a single-line sample and the voice
-  follows its timing and intonation (the recording's melody appears dotted in the pitch view). A
-  Follow slider sets how closely, from 0% to 100%, and regions still apply on top. WAV, FLAC, Ogg
-  and MP3 are used directly; m4a (e.g. from Windows Voice Recorder) and similar are converted to
-  WAV when attached.
+- **Human reading**: record yourself (or anyone) reading a single-line sample, or attach an
+  existing recording, and the voice follows its timing and intonation (the recording's melody
+  appears dotted in the pitch view). A Follow slider sets how closely, from 0% to 100%, and
+  regions still apply on top. The built-in recorder shows the text to read, a microphone level
+  meter and play-back before you keep a take; takes go in a `recordings` folder next to the
+  project. Attached files can be WAV, FLAC, Ogg or MP3, or m4a (e.g. from Windows Voice Recorder)
+  and similar, which are converted to WAV. A coding agent can open the recorder for you with the
+  MCP server's `record_reading` tool.
 - **A/B**: F6 plays the sample with all prosody edits switched off, for comparison.
 - **Projects** (`.ttsproj`, readable JSON): load, save, undo/redo, and a project-wide
   pronunciation lexicon. If another program (such as an agent) changes the file, the app
@@ -101,7 +104,7 @@ Or in an `.mcp.json`:
 Tools: `get_guide`, `list_voices`, `create_project`, `get_project`, `update_project_settings`,
 `set_lexicon_entry`, `remove_lexicon_entry`, `get_sample`, `add_sample`, `update_sample`,
 `delete_sample`, `add_region`, `update_region`, `delete_region`, `phonemize`, `render_sample`,
-`export_all`.
+`record_reading`, `export_all`.
 
 - Samples can be referenced by id or name.
 - Regions can be located by `match` text rather than offsets.
@@ -109,6 +112,8 @@ Tools: `get_guide`, `list_voices`, `create_project`, `get_project`, `update_proj
   changed in several places.
 - `render_sample` reports each word's phonemes and flags guessed pronunciations, so an agent
   can check and fix them.
+- `record_reading` opens the app's recorder on your screen with the sample's text, waits while
+  you record and keep a take, then attaches it so the voice follows your reading.
 
 ## How it works
 

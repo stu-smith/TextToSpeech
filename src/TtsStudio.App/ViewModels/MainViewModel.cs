@@ -216,6 +216,7 @@ public sealed partial class MainViewModel : ObservableObject
         OnPropertyChanged(nameof(ReferenceName));
         OnPropertyChanged(nameof(ReferenceMissing));
         AttachReferenceCommand.NotifyCanExecuteChanged();
+        RecordReferenceCommand.NotifyCanExecuteChanged();
         PlayReferenceCommand.NotifyCanExecuteChanged();
     }
 
@@ -868,6 +869,29 @@ public sealed partial class MainViewModel : ObservableObject
             Status = "Could not use the recording";
             Dialog.ShowError(_window, "Could not use the recording", e.Message);
         }
+    }
+
+    /// <summary>Records someone reading the sample (kept in a recordings folder next to the project) and follows it.</summary>
+    [RelayCommand(CanExecute = nameof(HasSample))]
+    private void RecordReference()
+    {
+        if (SelectedSample is not { } s) return;
+        if (string.IsNullOrWhiteSpace(s.Text))
+        {
+            Status = "Type the text first (F2 edits the text), then record someone reading it.";
+            return;
+        }
+        if (ProjectPath is null &&
+            (Dialog.Show(_window, "Save the project first",
+                 $"Recordings are kept in a “{ReferenceRecordings.RecordingsFolder}” folder next to the project file, so the project needs saving first.",
+                 "Save", "Cancel") != 0 || !Save()))
+            return;
+        Player.Stop();
+        var recorder = new RecordWindow(s.Text, s.Name, ReferenceRecordings.NewRecordingPath(ProjectPath!, s.Name)) { Owner = _window };
+        if (recorder.ShowDialog() != true) return;
+        s.ReferenceAudio = ReferenceRecordings.Store(recorder.Output, ProjectPath);
+        Status = $"Recorded {Path.GetFileName(recorder.Output)} ({recorder.Seconds:0.0} s); the voice now follows it" +
+                 (s.Text.Contains('\n') ? ". Note: a recording is only followed on single-line text." : ".");
     }
 
     [RelayCommand]

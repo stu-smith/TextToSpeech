@@ -306,6 +306,65 @@ public sealed class ProjectTools(EngineService engine)
         });
     }
 
+    [McpServerTool(Name = "record_reading")]
+    [Description("Opens TTS Studio's voice recorder on the user's screen, showing the sample's text with record, stop, play-back and keep controls, so the user can record themselves reading it. " +
+                 "Waits until they keep a take or cancel (this can take a few minutes; tell the user to look for the recorder window). " +
+                 "A kept take is saved as a WAV and attached as the sample's referenceAudio, so the speech follows its timing and intonation. Only used on single-line samples.")]
+    public async Task<string> RecordReading(
+        [Description(PathDesc)] string path,
+        [Description(SampleDesc)] string sample,
+        [Description("Where to save the WAV; default recordings/<sample name>.wav next to the project (numbered if taken).")] string? output = null,
+        [Description("How closely to follow the recording, 0..1 (default: keep the sample's setting, initially 1).")] double? referenceStrength = null,
+        CancellationToken ct = default)
+    {
+        var (project, full) = Load(path);
+        var s = FindSample(project, sample);
+        if (string.IsNullOrWhiteSpace(s.Text)) throw new McpException("The sample has no text to read.");
+        string app = Path.Combine(AppContext.BaseDirectory, "TtsStudio.exe");
+        if (!File.Exists(app))
+            throw new McpException("The recorder is part of the TTS Studio app. Run this MCP server from the app's folder (TtsStudio.Mcp.exe next to TtsStudio.exe).");
+        string wav = output is not null ? FullPath(output) : ReferenceRecordings.NewRecordingPath(full, s.Name);
+        if (!wav.EndsWith(".wav", StringComparison.OrdinalIgnoreCase)) throw new McpException("The recording is saved as WAV; give an output path ending in .wav.");
+
+        string dir = Path.Combine(Path.GetTempPath(), "TtsStudio");
+        Directory.CreateDirectory(dir);
+        string requestPath = Path.Combine(dir, $"record-{Guid.NewGuid():N}.json");
+        new RecordingRequest { Text = s.Text, Title = s.Name, Output = wav }.Save(requestPath);
+        RecordingResult? result;
+        try
+        {
+            using var process = System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(app) { ArgumentList = { RecordingRequest.Switch, requestPath } })
+                                ?? throw new McpException("Could not start the TTS Studio recorder.");
+            try
+            {
+                await process.WaitForExitAsync(ct);
+            }
+            catch (OperationCanceledException)
+            {
+                process.Kill();
+                throw;
+            }
+            result = RecordingResult.Load(RecordingRequest.ResultPath(requestPath));
+        }
+        finally
+        {
+            File.Delete(requestPath);
+            File.Delete(RecordingRequest.ResultPath(requestPath));
+        }
+
+        if (result is null) throw new McpException("The recorder closed without reporting a result.");
+        if (result.Outcome == "error") throw new McpException("The recorder failed: " + result.Error);
+        if (result.Outcome != "saved" || !File.Exists(wav)) return Json(new { outcome = "cancelled", message = "The user closed the recorder without keeping a take." });
+
+        // Re-load: the project may have changed (e.g. in the app) while the user was recording.
+        return Edit(path, (p, f) =>
+        {
+            var target = FindSample(p, s.Id);
+            ApplyReference(target, f, wav, referenceStrength);
+            return new { outcome = "saved", recording = wav, seconds = result.Seconds, sample = SampleDetail(target) };
+        });
+    }
+
     [McpServerTool(Name = "export_all")]
     [Description("Renders every sample into the project's export folder.")]
     public async Task<string> ExportAll(

@@ -594,14 +594,23 @@
                             <TextBlock Style="{StaticResource Section}" Text="HUMAN READING" />
                             <StackPanel Visibility="{Binding DataContext.HasReference, ElementName=Root, Converter={StaticResource Hidden}}">
                                 <TextBlock Style="{StaticResource DimText}" FontSize="12" TextWrapping="Wrap" Margin="0,0,0,8"
-                                           Text="Record someone reading this line and attach it: the voice then follows the recording's timing and intonation. Regions still apply on top." />
-                                <Button Style="{StaticResource SubtleButton}" HorizontalAlignment="Left" Margin="-8,0,0,0"
-                                        Command="{Binding DataContext.AttachReferenceCommand, ElementName=Root}">
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Style="{StaticResource Icon}" Text="&#xE720;" Foreground="{DynamicResource AccentBrush}" />
-                                        <TextBlock Text="Attach a recording…" Margin="8,0,0,0" Foreground="{DynamicResource AccentBrush}" />
-                                    </StackPanel>
-                                </Button>
+                                           Text="Record someone reading this line, or attach a recording: the voice then follows its timing and intonation. Regions still apply on top." />
+                                <WrapPanel Margin="-8,0,0,0">
+                                    <Button Style="{StaticResource SubtleButton}" Command="{Binding DataContext.RecordReferenceCommand, ElementName=Root}"
+                                            ToolTip="Record a reading of this text with your microphone">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Style="{StaticResource Icon}" Text="&#xE720;" Foreground="{DynamicResource AccentBrush}" />
+                                            <TextBlock Text="Record…" Margin="8,0,0,0" Foreground="{DynamicResource AccentBrush}" />
+                                        </StackPanel>
+                                    </Button>
+                                    <Button Style="{StaticResource SubtleButton}" Command="{Binding DataContext.AttachReferenceCommand, ElementName=Root}"
+                                            ToolTip="Use an existing recording (WAV, FLAC, Ogg, MP3, m4a…)">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Style="{StaticResource Icon}" Text="&#xE8E5;" Foreground="{DynamicResource AccentBrush}" />
+                                            <TextBlock Text="Attach a file…" Margin="8,0,0,0" Foreground="{DynamicResource AccentBrush}" />
+                                        </StackPanel>
+                                    </Button>
+                                </WrapPanel>
                             </StackPanel>
                             <StackPanel Visibility="{Binding DataContext.HasReference, ElementName=Root, Converter={StaticResource Visible}}">
                                 <DockPanel>
@@ -609,9 +618,13 @@
                                             Command="{Binding DataContext.RemoveReferenceCommand, ElementName=Root}">
                                         <TextBlock Style="{StaticResource Icon}" Text="&#xE711;" />
                                     </Button>
-                                    <Button DockPanel.Dock="Right" Style="{StaticResource SubtleButton}" ToolTip="Choose a different recording"
+                                    <Button DockPanel.Dock="Right" Style="{StaticResource SubtleButton}" ToolTip="Choose a different recording file"
                                             Command="{Binding DataContext.AttachReferenceCommand, ElementName=Root}">
                                         <TextBlock Style="{StaticResource Icon}" Text="&#xE8E5;" />
+                                    </Button>
+                                    <Button DockPanel.Dock="Right" Style="{StaticResource SubtleButton}" ToolTip="Record a new take"
+                                            Command="{Binding DataContext.RecordReferenceCommand, ElementName=Root}">
+                                        <TextBlock Style="{StaticResource Icon}" Text="&#xE720;" />
                                     </Button>
                                     <Button DockPanel.Dock="Left" Style="{StaticResource SubtleButton}" Margin="-8,0,4,0" ToolTip="Play the recording"
                                             Command="{Binding DataContext.PlayReferenceCommand, ElementName=Root}">

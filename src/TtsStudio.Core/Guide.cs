@@ -33,6 +33,7 @@ public static class Guide
         Human reading: a sample may have a referenceAudio recording of someone reading its text
         (single-line samples only). The speech then follows the recording's timing and melody,
         by referenceStrength (0 ignores it, 1 follows it fully), and regions apply on top.
+        record_reading opens a recorder on the user's screen so they can record that reading.
         """;
 
     public static string Full => $"""
