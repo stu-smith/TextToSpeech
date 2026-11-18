@@ -431,3 +431,8 @@ FodyWeavers.xsd
 .venv/
 .pytest_cache/
 artifacts/
+
+# Showcase video renders (rebuild from the project files)
+showcase/**/output/
+*.mp4
+showcase/**/*.wav

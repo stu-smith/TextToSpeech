@@ -1,0 +1,1680 @@
+{
+  "version": 1,
+  "name": "Oddly Pronounced Names SFX",
+  "defaultSampleRate": 44100,
+  "exportBitDepth": 16,
+  "effects": [
+    {
+      "id": "37745fe2",
+      "name": "whoosh",
+      "duration": 1.2,
+      "sampleRate": 44100,
+      "outputNode": "ea837227",
+      "nodes": [
+        {
+          "id": "a75e4d97",
+          "type": "Noise",
+          "x": 60,
+          "y": 40,
+          "values": {
+            "Colour": 1
+          },
+          "props": {}
+        },
+        {
+          "id": "f60bbaa1",
+          "type": "Curve",
+          "x": 60,
+          "y": 240,
+          "values": {
+            "Min": 150,
+            "Max": 3000
+          },
+          "props": {
+            "curve": {
+              "interpolation": "Linear",
+              "points": [
+                {
+                  "x": 0,
+                  "y": 0
+                },
+                {
+                  "x": 0.35,
+                  "y": 1
+                },
+                {
+                  "x": 1,
+                  "y": 0,
+                  "shape": 0.3
+                }
+              ]
+            }
+          }
+        },
+        {
+          "id": "f39b73c0",
+          "type": "Filter",
+          "x": 340,
+          "y": 40,
+          "values": {
+            "Mode": 2,
+            "Resonance": 0.5
+          },
+          "props": {}
+        },
+        {
+          "id": "5894f2ac",
+          "type": "Chorus",
+          "x": 600,
+          "y": 40,
+          "values": {
+            "Mode": 1,
+            "Rate": 0.8,
+            "Depth": 0.7,
+            "Feedback": 0.5
+          },
+          "props": {}
+        },
+        {
+          "id": "1bbe2d14",
+          "type": "Curve",
+          "x": 60,
+          "y": 480,
+          "props": {
+            "curve": {
+              "interpolation": "Linear",
+              "points": [
+                {
+                  "x": 0,
+                  "y": 0,
+                  "shape": -0.3
+                },
+                {
+                  "x": 0.33,
+                  "y": 1
+                },
+                {
+                  "x": 1,
+                  "y": 0,
+                  "shape": 0.45
+                }
+              ]
+            }
+          }
+        },
+        {
+          "id": "60212dd5",
+          "type": "Gain",
+          "x": 860,
+          "y": 40,
+          "props": {}
+        },
+        {
+          "id": "ff18c9c2",
+          "type": "Tone",
+          "x": 860,
+          "y": 280,
+          "values": {
+            "Cutoff": 6000
+          },
+          "props": {}
+        },
+        {
+          "id": "d84cb83c",
+          "type": "Normalize",
+          "x": 1100,
+          "y": 40,
+          "values": {
+            "Target": -3
+          },
+          "props": {}
+        },
+        {
+          "id": "ea837227",
+          "type": "Output",
+          "x": 1340,
+          "y": 40,
+          "values": {
+            "Fade In": 0.02,
+            "Fade Out": 0.15
+          },
+          "props": {}
+        }
+      ],
+      "connections": [
+        {
+          "from": "a75e4d97",
+          "to": "f39b73c0",
+          "port": "Input"
+        },
+        {
+          "from": "f60bbaa1",
+          "to": "f39b73c0",
+          "port": "Cutoff"
+        },
+        {
+          "from": "f39b73c0",
+          "to": "5894f2ac",
+          "port": "Input"
+        },
+        {
+          "from": "5894f2ac",
+          "to": "60212dd5",
+          "port": "Input"
+        },
+        {
+          "from": "1bbe2d14",
+          "to": "60212dd5",
+          "port": "Gain"
+        },
+        {
+          "from": "60212dd5",
+          "to": "ff18c9c2",
+          "port": "Input"
+        },
+        {
+          "from": "ff18c9c2",
+          "to": "d84cb83c",
+          "port": "Input"
+        },
+        {
+          "from": "d84cb83c",
+          "to": "ea837227",
+          "port": "Input"
+        }
+      ]
+    },
+    {
+      "id": "8b9a2211",
+      "name": "impact",
+      "duration": 1.3,
+      "sampleRate": 44100,
+      "outputNode": "out",
+      "nodes": [
+        {
+          "id": "pitch",
+          "type": "Ramp",
+          "x": 60,
+          "y": 60,
+          "values": {
+            "From": 150,
+            "To": 38,
+            "Length": 0.35,
+            "Exponential": 1
+          },
+          "props": {}
+        },
+        {
+          "id": "sub",
+          "type": "Sine",
+          "x": 330,
+          "y": 60,
+          "values": {
+            "Level": 1
+          },
+          "props": {}
+        },
+        {
+          "id": "subenv",
+          "type": "ADSR",
+          "x": 330,
+          "y": 257,
+          "values": {
+            "Attack": 0.002,
+            "Decay": 0.4,
+            "Sustain": 0,
+            "Hold": 0,
+            "Release": 0.3,
+            "Shape": -0.6
+          },
+          "props": {}
+        },
+        {
+          "id": "subgain",
+          "type": "Gain",
+          "x": 600,
+          "y": 60,
+          "props": {}
+        },
+        {
+          "id": "noise",
+          "type": "Noise",
+          "x": 60,
+          "y": 282,
+          "values": {
+            "Colour": 1
+          },
+          "props": {}
+        },
+        {
+          "id": "nfilt",
+          "type": "Filter",
+          "x": 330,
+          "y": 504,
+          "values": {
+            "Mode": 0,
+            "Cutoff": 2500,
+            "Resonance": 0.1
+          },
+          "props": {}
+        },
+        {
+          "id": "nenv",
+          "type": "ADSR",
+          "x": 330,
+          "y": 701,
+          "values": {
+            "Attack": 0.001,
+            "Decay": 0.12,
+            "Sustain": 0,
+            "Hold": 0,
+            "Release": 0.1,
+            "Shape": -0.7
+          },
+          "props": {}
+        },
+        {
+          "id": "ngain",
+          "type": "Gain",
+          "x": 600,
+          "y": 207,
+          "props": {}
+        },
+        {
+          "id": "mix",
+          "type": "Mixer",
+          "x": 870,
+          "y": 60,
+          "values": {
+            "Level 1": 1,
+            "Level 2": 1.2
+          },
+          "props": {
+            "channels": 4
+          }
+        },
+        {
+          "id": "drive",
+          "type": "Distortion",
+          "x": 1140,
+          "y": 60,
+          "values": {
+            "Type": 5,
+            "Drive": 2.5,
+            "Output": 0.8,
+            "Mix": 0.6
+          },
+          "props": {}
+        },
+        {
+          "id": "verb",
+          "type": "Reverb",
+          "x": 1410,
+          "y": 60,
+          "values": {
+            "Size": 0.85,
+            "Damping": 0.5,
+            "Mix": 0.12
+          },
+          "props": {}
+        },
+        {
+          "id": "norm",
+          "type": "Normalize",
+          "x": 1680,
+          "y": 60,
+          "values": {
+            "Target": -1.5
+          },
+          "props": {}
+        },
+        {
+          "id": "out",
+          "type": "Output",
+          "x": 1950,
+          "y": 60,
+          "values": {
+            "Fade Out": 0.3
+          },
+          "props": {}
+        }
+      ],
+      "connections": [
+        {
+          "from": "pitch",
+          "to": "sub",
+          "port": "Frequency"
+        },
+        {
+          "from": "sub",
+          "to": "subgain",
+          "port": "Input"
+        },
+        {
+          "from": "subenv",
+          "to": "subgain",
+          "port": "Gain"
+        },
+        {
+          "from": "noise",
+          "to": "nfilt",
+          "port": "Input"
+        },
+        {
+          "from": "nfilt",
+          "to": "ngain",
+          "port": "Input"
+        },
+        {
+          "from": "nenv",
+          "to": "ngain",
+          "port": "Gain"
+        },
+        {
+          "from": "subgain",
+          "to": "mix",
+          "port": "In 1"
+        },
+        {
+          "from": "ngain",
+          "to": "mix",
+          "port": "In 2"
+        },
+        {
+          "from": "mix",
+          "to": "drive",
+          "port": "Input"
+        },
+        {
+          "from": "drive",
+          "to": "verb",
+          "port": "Input"
+        },
+        {
+          "from": "verb",
+          "to": "norm",
+          "port": "Input"
+        },
+        {
+          "from": "norm",
+          "to": "out",
+          "port": "Input"
+        }
+      ]
+    },
+    {
+      "id": "1b02c8b6",
+      "name": "wrong",
+      "duration": 0.55,
+      "sampleRate": 44100,
+      "outputNode": "fd597df3",
+      "nodes": [
+        {
+          "id": "2489f887",
+          "type": "Square",
+          "x": 60,
+          "y": 40,
+          "values": {
+            "Frequency": 155
+          },
+          "props": {}
+        },
+        {
+          "id": "1413b9a4",
+          "type": "Saw",
+          "x": 60,
+          "y": 280,
+          "values": {
+            "Frequency": 155,
+            "Detune": 18,
+            "Level": 0.8
+          },
+          "props": {}
+        },
+        {
+          "id": "f282f485",
+          "type": "Mixer",
+          "x": 320,
+          "y": 40,
+          "props": {
+            "channels": 2
+          }
+        },
+        {
+          "id": "36691a7f",
+          "type": "Filter",
+          "x": 580,
+          "y": 40,
+          "values": {
+            "Cutoff": 1800,
+            "Resonance": 0.3
+          },
+          "props": {}
+        },
+        {
+          "id": "e420c83a",
+          "type": "Curve",
+          "x": 320,
+          "y": 280,
+          "values": {
+            "Length": 0.275,
+            "Loop": 1
+          },
+          "props": {
+            "curve": {
+              "interpolation": "Linear",
+              "points": [
+                {
+                  "x": 0,
+                  "y": 0
+                },
+                {
+                  "x": 0.03,
+                  "y": 1
+                },
+                {
+                  "x": 0.72,
+                  "y": 0.85
+                },
+                {
+                  "x": 0.8,
+                  "y": 0
+                },
+                {
+                  "x": 1,
+                  "y": 0
+                }
+              ]
+            }
+          }
+        },
+        {
+          "id": "65babb90",
+          "type": "Gain",
+          "x": 840,
+          "y": 40,
+          "props": {}
+        },
+        {
+          "id": "81893900",
+          "type": "Normalize",
+          "x": 1100,
+          "y": 40,
+          "values": {
+            "Target": -3
+          },
+          "props": {}
+        },
+        {
+          "id": "fd597df3",
+          "type": "Output",
+          "x": 1360,
+          "y": 40,
+          "props": {}
+        }
+      ],
+      "connections": [
+        {
+          "from": "2489f887",
+          "to": "f282f485",
+          "port": "In 1"
+        },
+        {
+          "from": "1413b9a4",
+          "to": "f282f485",
+          "port": "In 2"
+        },
+        {
+          "from": "f282f485",
+          "to": "36691a7f",
+          "port": "Input"
+        },
+        {
+          "from": "36691a7f",
+          "to": "65babb90",
+          "port": "Input"
+        },
+        {
+          "from": "e420c83a",
+          "to": "65babb90",
+          "port": "Gain"
+        },
+        {
+          "from": "65babb90",
+          "to": "81893900",
+          "port": "Input"
+        },
+        {
+          "from": "81893900",
+          "to": "fd597df3",
+          "port": "Input"
+        }
+      ]
+    },
+    {
+      "id": "290769ae",
+      "name": "reveal",
+      "duration": 2.2,
+      "sampleRate": 44100,
+      "outputNode": "0b504f5b",
+      "nodes": [
+        {
+          "id": "f023d420",
+          "type": "Pluck",
+          "x": 60,
+          "y": 40,
+          "values": {
+            "Frequency": 784,
+            "Damping": 0.08,
+            "Brightness": 0.55,
+            "Level": 0.9
+          },
+          "props": {}
+        },
+        {
+          "id": "5d5c9dde",
+          "type": "Pluck",
+          "x": 60,
+          "y": 280,
+          "values": {
+            "Frequency": 1047,
+            "Damping": 0.1,
+            "Brightness": 0.6,
+            "Start": 0.13,
+            "Level": 0.8
+          },
+          "props": {}
+        },
+        {
+          "id": "1c5050d6",
+          "type": "Pluck",
+          "x": 60,
+          "y": 520,
+          "values": {
+            "Frequency": 1568,
+            "Damping": 0.12,
+            "Brightness": 0.65,
+            "Start": 0.26,
+            "Level": 0.6
+          },
+          "props": {}
+        },
+        {
+          "id": "521fce84",
+          "type": "Mixer",
+          "x": 340,
+          "y": 40,
+          "props": {
+            "channels": 4
+          }
+        },
+        {
+          "id": "2c23ddb9",
+          "type": "Reverb",
+          "x": 600,
+          "y": 40,
+          "values": {
+            "Size": 0.7,
+            "Damping": 0.35,
+            "Mix": 0.35
+          },
+          "props": {}
+        },
+        {
+          "id": "6bea31f8",
+          "type": "Normalize",
+          "x": 840,
+          "y": 40,
+          "values": {
+            "Target": -2
+          },
+          "props": {}
+        },
+        {
+          "id": "0b504f5b",
+          "type": "Output",
+          "x": 1080,
+          "y": 40,
+          "values": {
+            "Fade Out": 0.2
+          },
+          "props": {}
+        }
+      ],
+      "connections": [
+        {
+          "from": "f023d420",
+          "to": "521fce84",
+          "port": "In 1"
+        },
+        {
+          "from": "5d5c9dde",
+          "to": "521fce84",
+          "port": "In 2"
+        },
+        {
+          "from": "1c5050d6",
+          "to": "521fce84",
+          "port": "In 3"
+        },
+        {
+          "from": "521fce84",
+          "to": "2c23ddb9",
+          "port": "Input"
+        },
+        {
+          "from": "2c23ddb9",
+          "to": "6bea31f8",
+          "port": "Input"
+        },
+        {
+          "from": "6bea31f8",
+          "to": "0b504f5b",
+          "port": "Input"
+        }
+      ]
+    },
+    {
+      "id": "31c3a873",
+      "name": "riser",
+      "duration": 2.2,
+      "sampleRate": 44100,
+      "outputNode": "out",
+      "nodes": [
+        {
+          "id": "pitch",
+          "type": "Ramp",
+          "x": 60,
+          "y": 60,
+          "values": {
+            "From": 110,
+            "To": 880,
+            "Length": 2,
+            "Exponential": 1
+          },
+          "props": {}
+        },
+        {
+          "id": "saw",
+          "type": "SuperSaw",
+          "x": 330,
+          "y": 60,
+          "values": {
+            "Voices": 7,
+            "Spread": 30,
+            "Level": 0.7
+          },
+          "props": {}
+        },
+        {
+          "id": "cut",
+          "type": "Ramp",
+          "x": 330,
+          "y": 257,
+          "values": {
+            "From": 300,
+            "To": 5000,
+            "Length": 2,
+            "Exponential": 1
+          },
+          "props": {}
+        },
+        {
+          "id": "lp",
+          "type": "Filter",
+          "x": 600,
+          "y": 60,
+          "values": {
+            "Mode": 0,
+            "Resonance": 0.4
+          },
+          "props": {}
+        },
+        {
+          "id": "noise",
+          "type": "Noise",
+          "x": 330,
+          "y": 479,
+          "values": {
+            "Colour": 0,
+            "Level": 0.5
+          },
+          "props": {}
+        },
+        {
+          "id": "ncut",
+          "type": "Ramp",
+          "x": 330,
+          "y": 626,
+          "values": {
+            "From": 500,
+            "To": 10000,
+            "Length": 2,
+            "Exponential": 1
+          },
+          "props": {}
+        },
+        {
+          "id": "bp",
+          "type": "Filter",
+          "x": 600,
+          "y": 257,
+          "values": {
+            "Mode": 2,
+            "Resonance": 0.5
+          },
+          "props": {}
+        },
+        {
+          "id": "mix",
+          "type": "Mixer",
+          "x": 870,
+          "y": 60,
+          "values": {
+            "Level 1": 1,
+            "Level 2": 0.3
+          },
+          "props": {
+            "channels": 4
+          }
+        },
+        {
+          "id": "env",
+          "type": "Curve",
+          "x": 870,
+          "y": 357,
+          "props": {
+            "curve": {
+              "interpolation": "Linear",
+              "points": [
+                {
+                  "x": 0,
+                  "y": 0.15,
+                  "shape": -0.25
+                },
+                {
+                  "x": 0.9,
+                  "y": 1
+                },
+                {
+                  "x": 0.92,
+                  "y": 0
+                },
+                {
+                  "x": 1,
+                  "y": 0
+                }
+              ]
+            }
+          }
+        },
+        {
+          "id": "vca",
+          "type": "Gain",
+          "x": 1140,
+          "y": 60,
+          "props": {}
+        },
+        {
+          "id": "trem",
+          "type": "Tremolo",
+          "x": 1410,
+          "y": 60,
+          "values": {
+            "Rate": 12,
+            "Depth": 0.35
+          },
+          "props": {}
+        },
+        {
+          "id": "verb",
+          "type": "Reverb",
+          "x": 1680,
+          "y": 60,
+          "values": {
+            "Size": 0.6,
+            "Mix": 0.2
+          },
+          "props": {}
+        },
+        {
+          "id": "norm",
+          "type": "Normalize",
+          "x": 1950,
+          "y": 60,
+          "values": {
+            "Target": -3
+          },
+          "props": {}
+        },
+        {
+          "id": "out",
+          "type": "Output",
+          "x": 2220,
+          "y": 60,
+          "values": {
+            "Fade In": 0.05
+          },
+          "props": {}
+        }
+      ],
+      "connections": [
+        {
+          "from": "pitch",
+          "to": "saw",
+          "port": "Frequency"
+        },
+        {
+          "from": "saw",
+          "to": "lp",
+          "port": "Input"
+        },
+        {
+          "from": "cut",
+          "to": "lp",
+          "port": "Cutoff"
+        },
+        {
+          "from": "noise",
+          "to": "bp",
+          "port": "Input"
+        },
+        {
+          "from": "ncut",
+          "to": "bp",
+          "port": "Cutoff"
+        },
+        {
+          "from": "lp",
+          "to": "mix",
+          "port": "In 1"
+        },
+        {
+          "from": "bp",
+          "to": "mix",
+          "port": "In 2"
+        },
+        {
+          "from": "mix",
+          "to": "vca",
+          "port": "Input"
+        },
+        {
+          "from": "env",
+          "to": "vca",
+          "port": "Gain"
+        },
+        {
+          "from": "vca",
+          "to": "trem",
+          "port": "Input"
+        },
+        {
+          "from": "trem",
+          "to": "verb",
+          "port": "Input"
+        },
+        {
+          "from": "verb",
+          "to": "norm",
+          "port": "Input"
+        },
+        {
+          "from": "norm",
+          "to": "out",
+          "port": "Input"
+        }
+      ]
+    },
+    {
+      "id": "c73e0f92",
+      "name": "music-loop",
+      "duration": 8,
+      "sampleRate": 44100,
+      "outputNode": "out",
+      "nodes": [
+        {
+          "id": "kpitch",
+          "type": "Curve",
+          "x": 870,
+          "y": 60,
+          "values": {
+            "Min": 45,
+            "Max": 160,
+            "Length": 0.5,
+            "Loop": 1,
+            "End At Min": 0
+          },
+          "props": {
+            "curve": {
+              "interpolation": "Linear",
+              "points": [
+                {
+                  "x": 0,
+                  "y": 1,
+                  "shape": 0.8
+                },
+                {
+                  "x": 0.25,
+                  "y": 0
+                },
+                {
+                  "x": 1,
+                  "y": 0
+                }
+              ]
+            }
+          }
+        },
+        {
+          "id": "kosc",
+          "type": "Sine",
+          "x": 1140,
+          "y": 60,
+          "props": {}
+        },
+        {
+          "id": "kenv",
+          "type": "Curve",
+          "x": 1140,
+          "y": 257,
+          "values": {
+            "Length": 0.5,
+            "Loop": 1,
+            "End At Min": 0
+          },
+          "props": {
+            "curve": {
+              "interpolation": "Linear",
+              "points": [
+                {
+                  "x": 0,
+                  "y": 1,
+                  "shape": 0.6
+                },
+                {
+                  "x": 0.55,
+                  "y": 0
+                },
+                {
+                  "x": 1,
+                  "y": 0
+                }
+              ]
+            }
+          }
+        },
+        {
+          "id": "kvca",
+          "type": "Gain",
+          "x": 1410,
+          "y": 60,
+          "props": {}
+        },
+        {
+          "id": "hnoise",
+          "type": "Noise",
+          "x": 870,
+          "y": 327,
+          "values": {
+            "Colour": 0
+          },
+          "props": {}
+        },
+        {
+          "id": "hhp",
+          "type": "Filter",
+          "x": 1140,
+          "y": 524,
+          "values": {
+            "Mode": 1,
+            "Cutoff": 7000,
+            "Resonance": 0.2
+          },
+          "props": {}
+        },
+        {
+          "id": "henv",
+          "type": "Curve",
+          "x": 1140,
+          "y": 721,
+          "values": {
+            "Length": 0.5,
+            "Loop": 1,
+            "End At Min": 0
+          },
+          "props": {
+            "curve": {
+              "interpolation": "Linear",
+              "points": [
+                {
+                  "x": 0,
+                  "y": 0
+                },
+                {
+                  "x": 0.5,
+                  "y": 0
+                },
+                {
+                  "x": 0.505,
+                  "y": 1,
+                  "shape": 0.7
+                },
+                {
+                  "x": 0.7,
+                  "y": 0
+                },
+                {
+                  "x": 1,
+                  "y": 0
+                }
+              ]
+            }
+          }
+        },
+        {
+          "id": "hvca",
+          "type": "Gain",
+          "x": 1410,
+          "y": 207,
+          "props": {}
+        },
+        {
+          "id": "bnote",
+          "type": "Curve",
+          "x": 330,
+          "y": 60,
+          "values": {
+            "Min": 0,
+            "Max": 200
+          },
+          "props": {
+            "curve": {
+              "interpolation": "Step",
+              "points": [
+                {
+                  "x": 0,
+                  "y": 0.55
+                },
+                {
+                  "x": 0.25,
+                  "y": 0.4365
+                },
+                {
+                  "x": 0.5,
+                  "y": 0.6541
+                },
+                {
+                  "x": 0.75,
+                  "y": 0.49
+                }
+              ]
+            }
+          }
+        },
+        {
+          "id": "bosc",
+          "type": "Saw",
+          "x": 600,
+          "y": 60,
+          "values": {
+            "Level": 1
+          },
+          "props": {}
+        },
+        {
+          "id": "bosc2",
+          "type": "Square",
+          "x": 600,
+          "y": 282,
+          "values": {
+            "Detune": -1200,
+            "Level": 0.6
+          },
+          "props": {}
+        },
+        {
+          "id": "bmix",
+          "type": "Mixer",
+          "x": 870,
+          "y": 474,
+          "props": {
+            "channels": 2
+          }
+        },
+        {
+          "id": "benv",
+          "type": "Curve",
+          "x": 1140,
+          "y": 988,
+          "values": {
+            "Length": 0.25,
+            "Loop": 1,
+            "End At Min": 0
+          },
+          "props": {
+            "curve": {
+              "interpolation": "Linear",
+              "points": [
+                {
+                  "x": 0,
+                  "y": 0
+                },
+                {
+                  "x": 0.03,
+                  "y": 1
+                },
+                {
+                  "x": 0.7,
+                  "y": 0.2,
+                  "shape": -0.3
+                },
+                {
+                  "x": 0.9,
+                  "y": 0
+                },
+                {
+                  "x": 1,
+                  "y": 0
+                }
+              ]
+            }
+          }
+        },
+        {
+          "id": "bcut",
+          "type": "Curve",
+          "x": 870,
+          "y": 671,
+          "values": {
+            "Min": 200,
+            "Max": 2200,
+            "Length": 0.25,
+            "Loop": 1,
+            "End At Min": 0
+          },
+          "props": {
+            "curve": {
+              "interpolation": "Linear",
+              "points": [
+                {
+                  "x": 0,
+                  "y": 1,
+                  "shape": 0.5
+                },
+                {
+                  "x": 0.6,
+                  "y": 0
+                },
+                {
+                  "x": 1,
+                  "y": 0
+                }
+              ]
+            }
+          }
+        },
+        {
+          "id": "blp",
+          "type": "Ladder",
+          "x": 1140,
+          "y": 1255,
+          "values": {
+            "Resonance": 0.4,
+            "Drive": 1.5
+          },
+          "props": {}
+        },
+        {
+          "id": "bvca",
+          "type": "Gain",
+          "x": 1410,
+          "y": 354,
+          "props": {}
+        },
+        {
+          "id": "p1f",
+          "type": "Curve",
+          "x": 60,
+          "y": 60,
+          "values": {
+            "Min": 0,
+            "Max": 1000
+          },
+          "props": {
+            "curve": {
+              "interpolation": "Step",
+              "points": [
+                {
+                  "x": 0,
+                  "y": 0.22
+                },
+                {
+                  "x": 0.25,
+                  "y": 0.1746
+                },
+                {
+                  "x": 0.5,
+                  "y": 0.196
+                },
+                {
+                  "x": 0.75,
+                  "y": 0.196
+                }
+              ]
+            }
+          }
+        },
+        {
+          "id": "p2f",
+          "type": "Curve",
+          "x": 60,
+          "y": 327,
+          "values": {
+            "Min": 0,
+            "Max": 1000
+          },
+          "props": {
+            "curve": {
+              "interpolation": "Step",
+              "points": [
+                {
+                  "x": 0,
+                  "y": 0.2616
+                },
+                {
+                  "x": 0.25,
+                  "y": 0.22
+                },
+                {
+                  "x": 0.5,
+                  "y": 0.2616
+                },
+                {
+                  "x": 0.75,
+                  "y": 0.2469
+                }
+              ]
+            }
+          }
+        },
+        {
+          "id": "p3f",
+          "type": "Curve",
+          "x": 60,
+          "y": 594,
+          "values": {
+            "Min": 0,
+            "Max": 1000
+          },
+          "props": {
+            "curve": {
+              "interpolation": "Step",
+              "points": [
+                {
+                  "x": 0,
+                  "y": 0.3296
+                },
+                {
+                  "x": 0.25,
+                  "y": 0.2616
+                },
+                {
+                  "x": 0.5,
+                  "y": 0.3296
+                },
+                {
+                  "x": 0.75,
+                  "y": 0.2937
+                }
+              ]
+            }
+          }
+        },
+        {
+          "id": "p1",
+          "type": "SuperSaw",
+          "x": 330,
+          "y": 327,
+          "values": {
+            "Voices": 5,
+            "Spread": 20,
+            "Level": 0.6,
+            "Seed": 1
+          },
+          "props": {}
+        },
+        {
+          "id": "p2",
+          "type": "SuperSaw",
+          "x": 330,
+          "y": 524,
+          "values": {
+            "Voices": 5,
+            "Spread": 20,
+            "Level": 0.6,
+            "Seed": 2
+          },
+          "props": {}
+        },
+        {
+          "id": "p3",
+          "type": "SuperSaw",
+          "x": 330,
+          "y": 721,
+          "values": {
+            "Voices": 5,
+            "Spread": 20,
+            "Level": 0.6,
+            "Seed": 3
+          },
+          "props": {}
+        },
+        {
+          "id": "pmix",
+          "type": "Mixer",
+          "x": 600,
+          "y": 529,
+          "props": {
+            "channels": 3
+          }
+        },
+        {
+          "id": "plp",
+          "type": "Filter",
+          "x": 870,
+          "y": 938,
+          "values": {
+            "Mode": 0,
+            "Cutoff": 2800,
+            "Resonance": 0.1
+          },
+          "props": {}
+        },
+        {
+          "id": "ppump",
+          "type": "Curve",
+          "x": 870,
+          "y": 1135,
+          "values": {
+            "Length": 0.5,
+            "Loop": 1,
+            "End At Min": 0
+          },
+          "props": {
+            "curve": {
+              "interpolation": "Linear",
+              "points": [
+                {
+                  "x": 0,
+                  "y": 0.2,
+                  "shape": -0.4
+                },
+                {
+                  "x": 0.45,
+                  "y": 1
+                },
+                {
+                  "x": 1,
+                  "y": 1
+                }
+              ]
+            }
+          }
+        },
+        {
+          "id": "pvca",
+          "type": "Gain",
+          "x": 1140,
+          "y": 1427,
+          "props": {}
+        },
+        {
+          "id": "pchorus",
+          "type": "Chorus",
+          "x": 1410,
+          "y": 501,
+          "values": {
+            "Mix": 0.4
+          },
+          "props": {}
+        },
+        {
+          "id": "mix",
+          "type": "Mixer",
+          "x": 1680,
+          "y": 60,
+          "values": {
+            "Level 1": 0.55,
+            "Level 2": 0.2,
+            "Level 3": 0.6,
+            "Level 4": 0.6
+          },
+          "props": {
+            "channels": 4
+          }
+        },
+        {
+          "id": "comp",
+          "type": "Compressor",
+          "x": 1950,
+          "y": 60,
+          "values": {
+            "Threshold": -14,
+            "Ratio": 3
+          },
+          "props": {}
+        },
+        {
+          "id": "lim",
+          "type": "Limiter",
+          "x": 2220,
+          "y": 60,
+          "values": {
+            "Ceiling": -1
+          },
+          "props": {}
+        },
+        {
+          "id": "norm",
+          "type": "Normalize",
+          "x": 2490,
+          "y": 60,
+          "values": {
+            "Target": -3
+          },
+          "props": {}
+        },
+        {
+          "id": "out",
+          "type": "Output",
+          "x": 2760,
+          "y": 60,
+          "values": {
+            "Fade In": 0,
+            "Fade Out": 0,
+            "Soft Clip": 1
+          },
+          "props": {}
+        },
+        {
+          "id": "dc",
+          "type": "Tone",
+          "x": 1950,
+          "y": 307,
+          "values": {
+            "Mode": 2
+          },
+          "props": {}
+        }
+      ],
+      "connections": [
+        {
+          "from": "kpitch",
+          "to": "kosc",
+          "port": "Frequency"
+        },
+        {
+          "from": "kosc",
+          "to": "kvca",
+          "port": "Input"
+        },
+        {
+          "from": "kenv",
+          "to": "kvca",
+          "port": "Gain"
+        },
+        {
+          "from": "hnoise",
+          "to": "hhp",
+          "port": "Input"
+        },
+        {
+          "from": "hhp",
+          "to": "hvca",
+          "port": "Input"
+        },
+        {
+          "from": "henv",
+          "to": "hvca",
+          "port": "Gain"
+        },
+        {
+          "from": "bnote",
+          "to": "bosc",
+          "port": "Frequency"
+        },
+        {
+          "from": "bnote",
+          "to": "bosc2",
+          "port": "Frequency"
+        },
+        {
+          "from": "bosc",
+          "to": "bmix",
+          "port": "In 1"
+        },
+        {
+          "from": "bosc2",
+          "to": "bmix",
+          "port": "In 2"
+        },
+        {
+          "from": "bmix",
+          "to": "blp",
+          "port": "Input"
+        },
+        {
+          "from": "bcut",
+          "to": "blp",
+          "port": "Cutoff"
+        },
+        {
+          "from": "blp",
+          "to": "bvca",
+          "port": "Input"
+        },
+        {
+          "from": "benv",
+          "to": "bvca",
+          "port": "Gain"
+        },
+        {
+          "from": "p1f",
+          "to": "p1",
+          "port": "Frequency"
+        },
+        {
+          "from": "p2f",
+          "to": "p2",
+          "port": "Frequency"
+        },
+        {
+          "from": "p3f",
+          "to": "p3",
+          "port": "Frequency"
+        },
+        {
+          "from": "p1",
+          "to": "pmix",
+          "port": "In 1"
+        },
+        {
+          "from": "p2",
+          "to": "pmix",
+          "port": "In 2"
+        },
+        {
+          "from": "p3",
+          "to": "pmix",
+          "port": "In 3"
+        },
+        {
+          "from": "pmix",
+          "to": "plp",
+          "port": "Input"
+        },
+        {
+          "from": "plp",
+          "to": "pvca",
+          "port": "Input"
+        },
+        {
+          "from": "ppump",
+          "to": "pvca",
+          "port": "Gain"
+        },
+        {
+          "from": "pvca",
+          "to": "pchorus",
+          "port": "Input"
+        },
+        {
+          "from": "kvca",
+          "to": "mix",
+          "port": "In 1"
+        },
+        {
+          "from": "hvca",
+          "to": "mix",
+          "port": "In 2"
+        },
+        {
+          "from": "bvca",
+          "to": "mix",
+          "port": "In 3"
+        },
+        {
+          "from": "pchorus",
+          "to": "mix",
+          "port": "In 4"
+        },
+        {
+          "from": "comp",
+          "to": "lim",
+          "port": "Input"
+        },
+        {
+          "from": "lim",
+          "to": "norm",
+          "port": "Input"
+        },
+        {
+          "from": "norm",
+          "to": "out",
+          "port": "Input"
+        },
+        {
+          "from": "mix",
+          "to": "dc",
+          "port": "Input"
+        },
+        {
+          "from": "dc",
+          "to": "comp",
+          "port": "Input"
+        }
+      ]
+    }
+  ]
+}

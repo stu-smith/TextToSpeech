@@ -1,0 +1,748 @@
+{
+  "format": "tts-studio-project",
+  "version": 1,
+  "name": "Top Ten Oddly Pronounced British Names",
+  "defaultVoice": "bf_emma",
+  "defaultSpeed": 1,
+  "exportFolder": "audio",
+  "exportFormat": "wav",
+  "lexicon": [],
+  "samples": [
+    {
+      "id": "fbefb848",
+      "name": "00-intro",
+      "text": "Britain is full of names that seem designed to trip you up. Here are ten surnames and place names that sound nothing like they look. Let's count them down!",
+      "pitch": 0,
+      "pitchRange": 1,
+      "regions": [
+        {
+          "id": "42a74671",
+          "start": 11,
+          "end": 15,
+          "label": "emphasis",
+          "pitch": 2.5,
+          "rate": 0.85,
+          "volume": 1.5
+        },
+        {
+          "id": "9ac64852",
+          "start": 56,
+          "end": 59,
+          "pauseAfterMs": 250
+        },
+        {
+          "id": "7120f0d2",
+          "start": 109,
+          "end": 116,
+          "pitch": 2,
+          "rate": 0.9
+        },
+        {
+          "id": "4ceffc42",
+          "start": 127,
+          "end": 132,
+          "pauseAfterMs": 300
+        }
+      ],
+      "exportName": "00-intro"
+    },
+    {
+      "id": "a3bc77d1",
+      "name": "10-leominster",
+      "text": "Number ten. Leominster? This handsome market town in Herefordshire is actually pronounced... Leominster.",
+      "pitch": 0,
+      "pitchRange": 1,
+      "regions": [
+        {
+          "id": "a0e09bb7",
+          "start": 7,
+          "end": 11,
+          "pauseAfterMs": 300
+        },
+        {
+          "id": "81097234",
+          "start": 12,
+          "end": 23,
+          "contour": "rise",
+          "contourSemitones": 5
+        },
+        {
+          "id": "4595e435",
+          "start": 12,
+          "end": 23,
+          "pauseAfterMs": 500
+        },
+        {
+          "id": "b9bd56c6",
+          "start": 12,
+          "end": 22,
+          "pronunciation": "lˌiəmˈɪnstə"
+        },
+        {
+          "id": "352804db",
+          "start": 79,
+          "end": 92,
+          "pauseAfterMs": 400
+        },
+        {
+          "id": "eaa2cc35",
+          "start": 93,
+          "end": 103,
+          "pronunciation": "lˈɛmstə"
+        },
+        {
+          "id": "457f53af",
+          "start": 93,
+          "end": 103,
+          "pitch": 1,
+          "rate": 0.8,
+          "volume": 2
+        }
+      ],
+      "exportName": "10-leominster"
+    },
+    {
+      "id": "00530557",
+      "name": "09-beauchamp",
+      "text": "Number nine. Beauchamp? This grand Norman surname means beautiful field. But you say it... Beauchamp.",
+      "pitch": 0,
+      "pitchRange": 1,
+      "regions": [
+        {
+          "id": "8ea254c2",
+          "start": 7,
+          "end": 12,
+          "pauseAfterMs": 300
+        },
+        {
+          "id": "655f8e19",
+          "start": 13,
+          "end": 23,
+          "contour": "rise",
+          "contourSemitones": 5
+        },
+        {
+          "id": "c7a048ef",
+          "start": 13,
+          "end": 23,
+          "pauseAfterMs": 500
+        },
+        {
+          "id": "5363a22e",
+          "start": 13,
+          "end": 22,
+          "pronunciation": "bˈQʧamp"
+        },
+        {
+          "id": "4cb6b0cf",
+          "start": 66,
+          "end": 72,
+          "pauseAfterMs": 200
+        },
+        {
+          "id": "d8de151d",
+          "start": 85,
+          "end": 90,
+          "pauseAfterMs": 400
+        },
+        {
+          "id": "edc704cc",
+          "start": 91,
+          "end": 100,
+          "pronunciation": "bˈiːʧəm"
+        },
+        {
+          "id": "c5811e72",
+          "start": 91,
+          "end": 100,
+          "pitch": 1,
+          "rate": 0.8,
+          "volume": 2
+        }
+      ],
+      "exportName": "09-beauchamp"
+    },
+    {
+      "id": "8b7da03d",
+      "name": "08-mousehole",
+      "text": "Number eight. Mousehole? This Cornish fishing village has nothing to do with mice... or holes. It's... Mousehole.",
+      "pitch": 0,
+      "pitchRange": 1,
+      "regions": [
+        {
+          "id": "28a3f0e2",
+          "start": 7,
+          "end": 13,
+          "pauseAfterMs": 300
+        },
+        {
+          "id": "515855d9",
+          "start": 14,
+          "end": 24,
+          "contour": "rise",
+          "contourSemitones": 5
+        },
+        {
+          "id": "fe84a7f7",
+          "start": 14,
+          "end": 24,
+          "pauseAfterMs": 500
+        },
+        {
+          "id": "fc8c5fa7",
+          "start": 14,
+          "end": 23,
+          "pronunciation": "mˈWshQl"
+        },
+        {
+          "id": "1dc29ae2",
+          "start": 77,
+          "end": 84,
+          "pauseAfterMs": 150
+        },
+        {
+          "id": "0d164887",
+          "start": 88,
+          "end": 94,
+          "pauseAfterMs": 300
+        },
+        {
+          "id": "a756fedf",
+          "start": 95,
+          "end": 102,
+          "pauseAfterMs": 400
+        },
+        {
+          "id": "caf30c42",
+          "start": 103,
+          "end": 112,
+          "pronunciation": "mˈWzᵊl"
+        },
+        {
+          "id": "08410bd3",
+          "start": 103,
+          "end": 112,
+          "pitch": 1,
+          "rate": 0.8,
+          "volume": 2
+        }
+      ],
+      "exportName": "08-mousehole"
+    },
+    {
+      "id": "194992d2",
+      "name": "07-menzies",
+      "text": "Number seven. Menzies? That zed was once an old Scots letter, called yogh. So this Highland clan isn't Men-zees. It's... Menzies.",
+      "pitch": 0,
+      "pitchRange": 1,
+      "regions": [
+        {
+          "id": "a7b4db82",
+          "start": 7,
+          "end": 13,
+          "pauseAfterMs": 300
+        },
+        {
+          "id": "f7aa5c6d",
+          "start": 14,
+          "end": 22,
+          "contour": "rise",
+          "contourSemitones": 5
+        },
+        {
+          "id": "f904144c",
+          "start": 14,
+          "end": 22,
+          "pauseAfterMs": 500
+        },
+        {
+          "id": "91aedd6d",
+          "start": 14,
+          "end": 21,
+          "pronunciation": "mˈɛnziz"
+        },
+        {
+          "id": "c4a2e323",
+          "start": 69,
+          "end": 74,
+          "pauseAfterMs": 200
+        },
+        {
+          "id": "d891ac8c",
+          "start": 103,
+          "end": 112,
+          "pauseAfterMs": 200
+        },
+        {
+          "id": "3b6f4701",
+          "start": 113,
+          "end": 120,
+          "pauseAfterMs": 400
+        },
+        {
+          "id": "a2aecd7f",
+          "start": 121,
+          "end": 128,
+          "pronunciation": "mˈɪŋɪs"
+        },
+        {
+          "id": "f3249bf8",
+          "start": 121,
+          "end": 128,
+          "pitch": 1,
+          "rate": 0.8,
+          "volume": 2
+        }
+      ],
+      "exportName": "07-menzies"
+    },
+    {
+      "id": "fa991a56",
+      "name": "06-belvoir",
+      "text": "Number six. Belvoir? It's French for beautiful view, and home to the Dukes of Rutland. But forget the French. It's... Belvoir Castle.",
+      "pitch": 0,
+      "pitchRange": 1,
+      "regions": [
+        {
+          "id": "0dbb2c72",
+          "start": 7,
+          "end": 11,
+          "pauseAfterMs": 300
+        },
+        {
+          "id": "8eda146b",
+          "start": 12,
+          "end": 20,
+          "contour": "rise",
+          "contourSemitones": 5
+        },
+        {
+          "id": "cf878eaa",
+          "start": 12,
+          "end": 20,
+          "pauseAfterMs": 500
+        },
+        {
+          "id": "9e63167c",
+          "start": 12,
+          "end": 19,
+          "pronunciation": "bˈɛlvwɑː"
+        },
+        {
+          "id": "73cecc52",
+          "start": 78,
+          "end": 86,
+          "pauseAfterMs": 200
+        },
+        {
+          "id": "7fcd9d7a",
+          "start": 102,
+          "end": 109,
+          "pauseAfterMs": 200
+        },
+        {
+          "id": "f31524e4",
+          "start": 110,
+          "end": 117,
+          "pauseAfterMs": 400
+        },
+        {
+          "id": "69a06f10",
+          "start": 118,
+          "end": 125,
+          "pronunciation": "bˈiːvə"
+        },
+        {
+          "id": "26e0aa4d",
+          "start": 118,
+          "end": 125,
+          "pitch": 1,
+          "rate": 0.8,
+          "volume": 2
+        }
+      ],
+      "exportName": "06-belvoir"
+    },
+    {
+      "id": "e8e708f0",
+      "name": "05-marjoribanks",
+      "text": "Number five. Marjoribanks? This aristocratic Scottish family gave the world the golden retriever. And they call themselves... Marjoribanks.",
+      "pitch": 0,
+      "pitchRange": 1,
+      "regions": [
+        {
+          "id": "6ee60e9d",
+          "start": 7,
+          "end": 12,
+          "pauseAfterMs": 300
+        },
+        {
+          "id": "494b995f",
+          "start": 13,
+          "end": 26,
+          "contour": "rise",
+          "contourSemitones": 5
+        },
+        {
+          "id": "2e5e2c58",
+          "start": 13,
+          "end": 26,
+          "pauseAfterMs": 500
+        },
+        {
+          "id": "056aa191",
+          "start": 13,
+          "end": 25,
+          "pronunciation": "mˈɑːʤəɹibaŋks"
+        },
+        {
+          "id": "a8c5d6cb",
+          "start": 87,
+          "end": 97,
+          "pauseAfterMs": 200
+        },
+        {
+          "id": "a95e2029",
+          "start": 112,
+          "end": 125,
+          "pauseAfterMs": 400
+        },
+        {
+          "id": "c7bc2f87",
+          "start": 126,
+          "end": 138,
+          "pronunciation": "mˈɑːʧbaŋks"
+        },
+        {
+          "id": "4b88154e",
+          "start": 126,
+          "end": 138,
+          "pitch": 1,
+          "rate": 0.8,
+          "volume": 2
+        }
+      ],
+      "exportName": "05-marjoribanks"
+    },
+    {
+      "id": "de1c7d58",
+      "name": "04-happisburgh",
+      "text": "Number four. Happisburgh? This Norfolk village is famous for its red and white striped lighthouse. The locals call it... Happisburgh.",
+      "pitch": 0,
+      "pitchRange": 1,
+      "regions": [
+        {
+          "id": "2f9d35c1",
+          "start": 7,
+          "end": 12,
+          "pauseAfterMs": 300
+        },
+        {
+          "id": "7b2c8fa5",
+          "start": 13,
+          "end": 25,
+          "contour": "rise",
+          "contourSemitones": 5
+        },
+        {
+          "id": "fdb26abc",
+          "start": 13,
+          "end": 25,
+          "pauseAfterMs": 500
+        },
+        {
+          "id": "a79ed623",
+          "start": 13,
+          "end": 24,
+          "pronunciation": "hˈapɪzbɜːɡ"
+        },
+        {
+          "id": "4aba36e0",
+          "start": 87,
+          "end": 98,
+          "pauseAfterMs": 200
+        },
+        {
+          "id": "d927d758",
+          "start": 115,
+          "end": 120,
+          "pauseAfterMs": 400
+        },
+        {
+          "id": "313e4004",
+          "start": 121,
+          "end": 132,
+          "pronunciation": "hˈAzbəɹə"
+        },
+        {
+          "id": "903c7d6d",
+          "start": 121,
+          "end": 132,
+          "pitch": 1,
+          "rate": 0.8,
+          "volume": 2
+        }
+      ],
+      "exportName": "04-happisburgh"
+    },
+    {
+      "id": "8b9ef335",
+      "name": "03-cholmondeley",
+      "text": "Number three. Cholmondeley? One of Britain's grandest surnames, with a castle in Cheshire to match. Four syllables on paper... just two out loud. Cholmondeley.",
+      "pitch": 0,
+      "pitchRange": 1,
+      "regions": [
+        {
+          "id": "1bddb145",
+          "start": 7,
+          "end": 13,
+          "pauseAfterMs": 300
+        },
+        {
+          "id": "c2ff97e2",
+          "start": 14,
+          "end": 27,
+          "contour": "rise",
+          "contourSemitones": 5
+        },
+        {
+          "id": "bc17f448",
+          "start": 14,
+          "end": 27,
+          "pauseAfterMs": 500
+        },
+        {
+          "id": "40a53805",
+          "start": 14,
+          "end": 26,
+          "pronunciation": "ʧˈɒlməndəli"
+        },
+        {
+          "id": "29dcbda6",
+          "start": 93,
+          "end": 99,
+          "pauseAfterMs": 200
+        },
+        {
+          "id": "a7fc99d1",
+          "start": 118,
+          "end": 126,
+          "pauseAfterMs": 200
+        },
+        {
+          "id": "9d646365",
+          "start": 140,
+          "end": 145,
+          "pauseAfterMs": 300
+        },
+        {
+          "id": "2986981f",
+          "start": 146,
+          "end": 158,
+          "pronunciation": "ʧˈʌmli"
+        },
+        {
+          "id": "2e8e4a0d",
+          "start": 146,
+          "end": 158,
+          "pitch": 1,
+          "rate": 0.8,
+          "volume": 2
+        }
+      ],
+      "exportName": "03-cholmondeley"
+    },
+    {
+      "id": "67069b89",
+      "name": "02-woolfardisworthy",
+      "text": "Number two. Woolfardisworthy? Not one, but two Devon villages share this tongue twister. Thankfully, everyone just calls them... Woolfardisworthy.",
+      "pitch": 0,
+      "pitchRange": 1,
+      "regions": [
+        {
+          "id": "a47a7970",
+          "start": 7,
+          "end": 11,
+          "pauseAfterMs": 300
+        },
+        {
+          "id": "efe7fe01",
+          "start": 12,
+          "end": 29,
+          "contour": "rise",
+          "contourSemitones": 5
+        },
+        {
+          "id": "b0beff4a",
+          "start": 12,
+          "end": 29,
+          "pauseAfterMs": 500
+        },
+        {
+          "id": "eafa2e55",
+          "start": 12,
+          "end": 28,
+          "pronunciation": "wˌʊlfˈɑːdɪswˌɜːði"
+        },
+        {
+          "id": "7f23a14f",
+          "start": 43,
+          "end": 46,
+          "label": "emphasis",
+          "pitch": 2.5,
+          "rate": 0.85,
+          "volume": 1.5
+        },
+        {
+          "id": "d98a0efc",
+          "start": 80,
+          "end": 88,
+          "pauseAfterMs": 200
+        },
+        {
+          "id": "2555056e",
+          "start": 121,
+          "end": 128,
+          "pauseAfterMs": 400
+        },
+        {
+          "id": "94f9fc2d",
+          "start": 129,
+          "end": 145,
+          "pronunciation": "wˈʊlzəɹi"
+        },
+        {
+          "id": "a14d4515",
+          "start": 129,
+          "end": 145,
+          "pitch": 1,
+          "rate": 0.8,
+          "volume": 2
+        }
+      ],
+      "exportName": "02-woolfardisworthy"
+    },
+    {
+      "id": "b85b6496",
+      "name": "01-featherstonehaugh",
+      "text": "And at number one... Featherstonehaugh? Seventeen letters on paper. Just two syllables out loud. It's... Featherstonehaugh!",
+      "pitch": 0,
+      "pitchRange": 1,
+      "regions": [
+        {
+          "id": "53a6cdcf",
+          "start": 14,
+          "end": 20,
+          "pauseAfterMs": 400
+        },
+        {
+          "id": "c60a8d23",
+          "start": 21,
+          "end": 39,
+          "contour": "rise",
+          "contourSemitones": 5
+        },
+        {
+          "id": "989829e6",
+          "start": 21,
+          "end": 39,
+          "pauseAfterMs": 500
+        },
+        {
+          "id": "1e00f0c3",
+          "start": 21,
+          "end": 38,
+          "pronunciation": "fˈɛðəstˌQnhɔː"
+        },
+        {
+          "id": "87f39b99",
+          "start": 61,
+          "end": 67,
+          "pauseAfterMs": 200
+        },
+        {
+          "id": "d228fd4b",
+          "start": 91,
+          "end": 96,
+          "pauseAfterMs": 300
+        },
+        {
+          "id": "2cb6d487",
+          "start": 97,
+          "end": 104,
+          "pauseAfterMs": 500
+        },
+        {
+          "id": "8abeb71d",
+          "start": 105,
+          "end": 122,
+          "pronunciation": "fˈanʃɔː"
+        },
+        {
+          "id": "8b3223bb",
+          "start": 105,
+          "end": 122,
+          "pitch": 1,
+          "rate": 0.75,
+          "volume": 2
+        }
+      ],
+      "exportName": "01-featherstonehaugh"
+    },
+    {
+      "id": "838502ff",
+      "name": "99-outro",
+      "text": "So... how many did you get right? Every word of this video was spoken by TTS Studio, where you can fine-tune every pronunciation, pause and pitch. And the whole thing was put together in Promo Foundry, for eye-catching promo images and videos. Thanks for watching!",
+      "pitch": 0,
+      "pitchRange": 1,
+      "regions": [
+        {
+          "id": "bd5658cf",
+          "start": 0,
+          "end": 5,
+          "pauseAfterMs": 200
+        },
+        {
+          "id": "01b4f120",
+          "start": 19,
+          "end": 22,
+          "label": "emphasis",
+          "pitch": 2.5,
+          "rate": 0.85,
+          "volume": 1.5
+        },
+        {
+          "id": "c43e0554",
+          "start": 27,
+          "end": 33,
+          "pauseAfterMs": 500
+        },
+        {
+          "id": "5a9baecf",
+          "start": 77,
+          "end": 84,
+          "pauseAfterMs": 150
+        },
+        {
+          "id": "b1d399fc",
+          "start": 140,
+          "end": 146,
+          "pauseAfterMs": 300
+        },
+        {
+          "id": "cee934e4",
+          "start": 193,
+          "end": 201,
+          "pauseAfterMs": 150
+        },
+        {
+          "id": "9795e937",
+          "start": 236,
+          "end": 243,
+          "pauseAfterMs": 400
+        }
+      ],
+      "exportName": "99-outro"
+    }
+  ]
+}
