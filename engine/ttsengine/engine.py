@@ -25,6 +25,7 @@ from kokoro import KModel, KPipeline
 
 from . import markup
 from .markup import Controls, Document
+from .prosody import Reference, TransferPlan, plan as plan_transfer
 
 REPO_ID = "hexgrad/Kokoro-82M"
 SAMPLE_RATE = 24000
@@ -41,6 +42,7 @@ PAUSE_SEARCH_BACK = int(0.04 * SAMPLE_RATE)
 PAUSE_SEARCH_AHEAD = int(0.15 * SAMPLE_RATE)
 PAUSE_RMS_WINDOW = int(0.01 * SAMPLE_RATE)
 PAUSE_FADE = int(0.008 * SAMPLE_RATE)
+SILENT_SYMBOLS = set(' .,!?;:—…"()“”')  # phoneme-string symbols that are pauses, not sounds
 
 # English voices only: the markup relies on misaki's English G2P.
 VOICES = [
@@ -75,6 +77,7 @@ class SynthResult:
     g2p_seconds: float
     synth_seconds: float
     warnings: list[str] = field(default_factory=list)
+    f0_reference: np.ndarray | None = None  # reference contour on Kokoro's voice, with a reference
 
     @property
     def duration(self) -> float:
@@ -91,6 +94,8 @@ class _Edits:
     spans: list[tuple[int, int, Controls]]  # input-id ranges [a, b)
     global_pitch: float = 0.0
     global_range: float = 1.0
+    transfer: TransferPlan | None = None  # follow a reference recording's timing and pitch
+    f0_reference: np.ndarray | None = None  # set by _forward when transfer is used
 
 
 def load_lexicon(path: str | Path) -> dict[str, str]:
@@ -185,17 +190,19 @@ class Engine:
         prosody: bool = True,
         global_pitch: float = 0.0,
         global_range: float = 1.0,
+        reference: Reference | None = None,
     ) -> SynthResult:
         """Synthesize annotated text. With prosody=False, prosody markup and the global
         pitch/range settings are ignored (pronunciation overrides still apply), which
-        gives a fair A/B baseline."""
+        gives a fair A/B baseline. A reference recording of the same text makes the timing
+        and intonation follow it (single-line text only)."""
         docs = []
         for line_no, line in enumerate((ln for ln in text.splitlines() if ln.strip()), 1):
             try:
                 docs.append(markup.parse(line))
             except markup.MarkupError as e:
                 raise markup.MarkupError(f"Line {line_no}: {e}") from None
-        return self.synthesize_docs(docs, voice, speed, lexicon, prosody, global_pitch, global_range)
+        return self.synthesize_docs(docs, voice, speed, lexicon, prosody, global_pitch, global_range, reference)
 
     def synthesize_docs(
         self,
@@ -206,9 +213,12 @@ class Engine:
         prosody: bool = True,
         global_pitch: float = 0.0,
         global_range: float = 1.0,
+        reference: Reference | None = None,
     ) -> SynthResult:
         """Synthesize already-parsed lines (one Document each), so callers can build
         Documents directly, e.g. with overlapping spans that markup cannot express."""
+        if reference is not None and len(docs) != 1:
+            raise ValueError("A reference recording needs exactly one line of text")
         pipe = self.pipeline(voice)
         pack = pipe.load_voice(voice).to(self.device)
         lexicon = lexicon or {}
@@ -216,6 +226,7 @@ class Engine:
         audio_parts: list[np.ndarray] = []
         f0p_parts: list[np.ndarray] = []
         f0f_parts: list[np.ndarray] = []
+        f0r: np.ndarray | None = None
         all_tokens: list[TokenInfo] = []
         all_ps: list[str] = []
         t_g2p = t_syn = 0.0
@@ -233,6 +244,8 @@ class Engine:
             for info in infos:
                 info.line = line_no
             chunks = self._chunks(mtokens)
+            if reference is not None and len(chunks) > 1:
+                raise ValueError("A reference recording needs text short enough for one model call")
             # Each pause goes to the chunk holding the last token before it.
             chunk_pauses = [[] for _ in chunks]
             for pause in doc.pauses:
@@ -246,9 +259,10 @@ class Engine:
                 out = self._synth_chunk(
                     [mtokens[i] for i in chunk], [infos[i] for i in chunk], doc, pauses, pack, speed,
                     global_pitch if prosody else 0.0, global_range if prosody else 1.0,
+                    reference if prosody else None, warnings,
                 )
                 t_syn += time.perf_counter() - t0
-                audio, f0p, f0f, ps = out
+                audio, f0p, f0f, ps, f0r = out
                 for i in chunk:
                     if infos[i].start is not None:
                         infos[i].start += clock
@@ -279,6 +293,7 @@ class Engine:
             g2p_seconds=t_g2p,
             synth_seconds=t_syn,
             warnings=warnings,
+            f0_reference=f0r,
         )
 
     def synthesize_phonemes(self, ps: str, voice: str = "af_heart", speed: float = 1.0) -> SynthResult:
@@ -347,7 +362,8 @@ class Engine:
             chunks.append(cur)
         return chunks
 
-    def _synth_chunk(self, mtokens, infos, doc: Document, pauses, pack, speed, global_pitch, global_range):
+    def _synth_chunk(self, mtokens, infos, doc: Document, pauses, pack, speed, global_pitch, global_range,
+                     reference: Reference | None = None, warnings: list[str] | None = None):
         vocab = self.model.vocab
         # Phoneme string + where each token's phonemes land in it.
         ps, ranges = "", []
@@ -386,7 +402,19 @@ class Engine:
             spans.append((a, b, span.controls))
 
         edits = _Edits(dur_scale, spans, global_pitch, global_range)
+        if reference is not None:
+            # Render the line Kokoro's own way, align that to the reference, then follow it.
+            own_audio, own_dur, _, _ = self._forward(ids, pack[len(ps) - 1], speed, None)
+            words = [r for info, r in zip(infos, tok_ids) if r and info.source != "punct"]
+            keep = [r for info, r in zip(infos, tok_ids)
+                    if r and info.source in ("markup", "lexicon") and reference.keep_overrides]
+            symbol = {v: k for k, v in vocab.items()}
+            silent = np.array([i == 0 or symbol.get(i) in SILENT_SYMBOLS for i in ids])
+            edits.transfer = plan_transfer(own_audio, own_dur, words, keep, silent, reference)
+            if edits.transfer.warning and warnings is not None:
+                warnings.append(edits.transfer.warning)
         audio, pred_dur, f0p, f0f = self._forward(ids, pack[len(ps) - 1], speed, edits)
+        f0r = edits.f0_reference
         cum = np.concatenate([[0], np.cumsum(pred_dur)])
 
         # Pauses: silence after the preceding token, mid-way through its trailing space if it has one.
@@ -421,11 +449,13 @@ class Engine:
             nan = np.full(fn, np.nan, dtype=np.float32)
             f0p = np.concatenate([f0p[:fpos], nan, f0p[fpos:]])
             f0f = np.concatenate([f0f[:fpos], nan, f0f[fpos:]])
+            if f0r is not None:
+                f0r = np.concatenate([f0r[:fpos], nan, f0r[fpos:]])
             for info in infos:
                 if info.start is not None and info.start * SAMPLE_RATE >= pos - 1:
                     info.start += n / SAMPLE_RATE
                     info.end += n / SAMPLE_RATE
-        return audio, f0p, f0f, ps
+        return audio, f0p, f0f, ps, f0r
 
     @torch.no_grad()
     def _forward(self, ids: list[int], ref_s: torch.Tensor, speed: float, edits: _Edits | None):
@@ -442,11 +472,19 @@ class Engine:
         x, _ = m.predictor.lstm(d)
         duration = torch.sigmoid(m.predictor.duration_proj(x)).sum(axis=-1) / speed
 
-        # Hook 1: durations (rate control). The F0/energy predictors below run on the
-        # stretched sequence, so the model adapts its intonation to the new timing.
+        # Hook 1: durations (reference timing, then rate control). The F0/energy predictors
+        # below run on the stretched sequence, so the model adapts its intonation to the new timing.
         if edits is not None:
+            if edits.transfer is not None:
+                duration = edits.transfer.durations(duration)
             duration = duration * torch.from_numpy(edits.dur_scale).to(self.device)[None]
-        pred_dur = torch.round(duration).clamp(min=1).long().squeeze(0)
+        if edits is not None and edits.transfer is not None:
+            # Round the running total rather than each id, so word boundaries land within half a
+            # frame of the reference's instead of drifting by the accumulated rounding error.
+            ends = torch.round(torch.cumsum(duration.squeeze(0), 0))
+            pred_dur = torch.diff(ends, prepend=ends.new_zeros(1)).clamp(min=1).long()
+        else:
+            pred_dur = torch.round(duration).clamp(min=1).long().squeeze(0)
 
         indices = torch.repeat_interleave(torch.arange(input_ids.shape[1], device=self.device), pred_dur)
         aln = torch.zeros((input_ids.shape[1], indices.shape[0]), device=self.device)
@@ -460,7 +498,11 @@ class Engine:
         dur_np = pred_dur.cpu().numpy()
         vol_db = None
         if edits is not None:
-            f0_new, n_delta, vol_db = self._edit_curves(f0_pred, dur_np, edits)
+            f0_base = f0_pred
+            if edits.transfer is not None:
+                # The reference contour becomes the baseline that the regions then edit.
+                f0_base, edits.f0_reference = edits.transfer.baseline_f0(f0_pred, dur_np, _smooth)
+            f0_new, n_delta, vol_db = self._edit_curves(f0_base, dur_np, edits)
             F0 = torch.from_numpy(f0_new)[None].to(self.device)
             N = N + torch.from_numpy(n_delta)[None].to(self.device)
 

@@ -38,5 +38,6 @@
     <SolidColorBrush x:Key="WordLineBrush" Color="#D8DBE0" />
     <SolidColorBrush x:Key="WaveBrush" Color="#45707888" />
     <SolidColorBrush x:Key="PredictedPitchBrush" Color="#8E949E" />
+    <SolidColorBrush x:Key="ReferencePitchBrush" Color="#0F9488" />
 
 </ResourceDictionary>

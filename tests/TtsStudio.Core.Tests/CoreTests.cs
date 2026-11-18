@@ -217,3 +217,76 @@ public class UvLockTests
         Assert.Empty(none);
     }
 }
+
+public class ReferenceRecordingTests
+{
+    private static readonly string Root = Path.Combine(Path.GetTempPath(), "tts-ref-tests");
+    private static string In(params string[] parts) => Path.Combine([Root, .. parts]);
+
+    [Fact]
+    public void Paths_are_stored_relative_to_the_project_and_resolved_back()
+    {
+        string project = In("proj", "voice.ttsproj"), recording = In("proj", "takes", "intro.wav");
+        string stored = ReferenceRecordings.Store(recording, project);
+        Assert.Equal(Path.Combine("takes", "intro.wav"), stored);
+        Assert.Equal(recording, ReferenceRecordings.Resolve(stored, project));
+        Assert.Equal(recording, ReferenceRecordings.Store(recording, null)); // unsaved project: absolute
+        Assert.Null(ReferenceRecordings.Resolve(null, project));
+    }
+
+    [Fact]
+    public void Save_as_rebases_relative_paths()
+    {
+        var p = new Project();
+        p.Samples.Add(new Sample { Text = "Hi.", ReferenceAudio = Path.Combine("takes", "hi.wav") });
+        ReferenceRecordings.Rebase(p, In("a", "x.ttsproj"), In("b", "c", "x.ttsproj"));
+        Assert.Equal(Path.Combine("..", "..", "a", "takes", "hi.wav"), p.Samples[0].ReferenceAudio);
+        Assert.Equal(In("a", "takes", "hi.wav"), ReferenceRecordings.Resolve(p.Samples[0].ReferenceAudio, In("b", "c", "x.ttsproj")));
+    }
+
+    [Fact]
+    public void Formats_the_engine_reads()
+    {
+        Assert.True(ReferenceRecordings.IsSupported("take.WAV"));
+        Assert.True(ReferenceRecordings.IsSupported("take.flac"));
+        Assert.False(ReferenceRecordings.IsSupported("take.m4a"));
+    }
+
+    [Fact]
+    public void Loading_cleans_up_reference_settings_and_round_trips()
+    {
+        string json = """
+            {"format":"tts-studio-project","version":1,"samples":[
+              {"id":"a","text":"One.","referenceAudio":"take.wav","referenceStrength":7},
+              {"id":"b","text":"Two.","referenceAudio":"  ","referenceStrength":-1}]}
+            """;
+        var p = ProjectFile.Parse(json);
+        Assert.Equal(("take.wav", 1.0), (p.Samples[0].ReferenceAudio, p.Samples[0].ReferenceStrength));
+        Assert.Equal((null, 0.0), (p.Samples[1].ReferenceAudio, p.Samples[1].ReferenceStrength));
+        var again = ProjectFile.Parse(ProjectFile.Serialize(p));
+        Assert.Equal("take.wav", again.Samples[0].ReferenceAudio);
+    }
+
+    [Fact]
+    public void Requests_carry_the_full_path_and_their_key_changes_with_the_recording()
+    {
+        Directory.CreateDirectory(In("proj"));
+        string project = In("proj", "p.ttsproj"), take = In("proj", "take.wav");
+        File.WriteAllBytes(take, new byte[100]);
+        var p = new Project();
+        var s = new Sample { Text = "Hello there.", ReferenceAudio = "take.wav", ReferenceStrength = 0.5 };
+        p.Samples.Add(s);
+
+        var req = SynthesisRequest.For(p, s, "out.wav", projectPath: project);
+        Assert.Equal((take, 0.5), (req.ReferenceAudio, req.ReferenceStrength));
+        string key = req.ContentKey();
+
+        s.ReferenceStrength = 0.75;
+        Assert.NotEqual(key, SynthesisRequest.For(p, s, "out.wav", projectPath: project).ContentKey());
+        s.ReferenceStrength = 0.5;
+        Assert.Equal(key, SynthesisRequest.For(p, s, "out.wav", projectPath: project).ContentKey());
+
+        File.WriteAllBytes(take, new byte[200]); // re-recorded
+        Assert.NotEqual(key, SynthesisRequest.For(p, s, "out.wav", projectPath: project).ContentKey());
+    }
+}

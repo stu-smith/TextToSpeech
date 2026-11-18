@@ -18,4 +18,8 @@
     <ProjectReference Include="..\TtsStudio.Mcp\TtsStudio.Mcp.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="NAudio.Wasapi" Version="2.2.1" />
+  </ItemGroup>
+
 </Project>

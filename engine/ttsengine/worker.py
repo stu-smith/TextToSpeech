@@ -23,6 +23,7 @@ import soundfile as sf
 
 from . import document, markup
 from .engine import F0_HOP, F0_RATE, SAMPLE_RATE, VOICES, Engine, SynthResult
+from .prosody import Reference
 
 PROTOCOL_VERSION = 1
 FORMATS = {".wav": ("WAV", "PCM_16"), ".flac": ("FLAC", "PCM_16"), ".ogg": ("OGG", "VORBIS"),
@@ -33,6 +34,7 @@ class Worker:
     def __init__(self, out):
         self.out = out
         self.engine: Engine | None = None
+        self._references: dict[tuple[str, int], np.ndarray] = {}
 
     def send(self, msg: dict) -> None:
         self.out.write(json.dumps(msg, ensure_ascii=False, allow_nan=False) + "\n")
@@ -61,7 +63,14 @@ class Worker:
             global_range=float(p.get("pitchRange", 1.0) if p.get("pitchRange") is not None else 1.0),
         )
         docs = [ln.doc for ln in lines]
-        result = self.engine.synthesize_docs(docs, **args)
+        reference = self._reference(p, docs, warnings)
+        try:
+            result = self.engine.synthesize_docs(docs, reference=reference, **args)
+        except ValueError as e:
+            if reference is None:
+                raise
+            warnings.append(f"The reference recording was not used: {e}.")
+            result = self.engine.synthesize_docs(docs, **args)
         result.warnings[:0] = warnings
         out = _write(result.audio, p["output"])
         reply = self._describe(result, lines)
@@ -70,6 +79,31 @@ class Worker:
             base = self.engine.synthesize_docs(docs, prosody=False, **args)
             reply["baseline"] = {"output": _write(base.audio, p["baselineOutput"]), "duration": base.duration}
         return reply
+
+    def _reference(self, p: dict, docs: list, warnings: list[str]) -> Reference | None:
+        """The request's reference recording, or None (with a warning if one was asked for but
+        cannot be used). Decoded recordings are cached by path and modification time."""
+        path = p.get("referenceAudio")
+        strength = float(p.get("referenceStrength", 1.0) if p.get("referenceStrength") is not None else 1.0)
+        if not path or strength <= 0:
+            return None
+        if len(docs) != 1:
+            warnings.append("The reference recording was not used: it only works on a single line of text.")
+            return None
+        try:
+            stamp = os.stat(path).st_mtime_ns
+        except OSError:
+            warnings.append(f"The reference recording was not found: {path}")
+            return None
+        key = (path, stamp)
+        if key not in self._references:
+            try:
+                self._references = {key: Reference.load(path).audio}  # keep only the latest
+            except Exception as e:  # unreadable or unsupported file
+                warnings.append(f"The reference recording could not be read: {e}")
+                return None
+        strength = min(strength, 1.0)
+        return Reference(self._references[key], timing=strength, pitch=strength)
 
     def phonemize(self, p: dict) -> dict:
         """Dictionary pronunciation of plain text (lexicon applied), word by word."""
@@ -108,6 +142,7 @@ class Worker:
             "f0Rate": F0_RATE,
             "f0Predicted": _curve(result.f0_predicted),
             "f0Final": _curve(result.f0_final),
+            "f0Reference": _curve(result.f0_reference) if result.f0_reference is not None else [],
             "envelope": [round(float(x), 4) for x in envelope],
         }
 

@@ -109,6 +109,12 @@ public sealed partial class MainViewModel : ObservableObject
     public bool ShowSelectionPanel => SelectedRegion is null && HasSelection;
     public bool ShowSamplePanel => SelectedRegion is null && SelectedSample is not null;
     public bool EngineBusy => Engine.State is EngineState.Installing or EngineState.Starting;
+
+    /// <summary>Full path of the selected sample's reference recording, if it has one.</summary>
+    public string? ReferencePath => ReferenceRecordings.Resolve(SelectedSample?.ReferenceAudio, ProjectPath);
+    public bool HasReference => ReferencePath is not null;
+    public string ReferenceName => ReferencePath is { } p ? Path.GetFileName(p) : "";
+    public bool ReferenceMissing => ReferencePath is { } p && !File.Exists(p);
     public string ResultSummary => Result is null ? "" :
         $"{Result.Duration:0.00} s of audio · rendered in {Result.SynthSeconds:0.00} s on CPU ({(Result.SynthSeconds > 0 ? Result.Duration / Result.SynthSeconds : 0):0.#}× real time)";
 
@@ -128,6 +134,7 @@ public sealed partial class MainViewModel : ObservableObject
     partial void OnProjectPathChanged(string? value)
     {
         OnPropertyChanged(nameof(ProjectFileLabel));
+        NotifyReference();
         WatchFile(value);
     }
 
@@ -142,6 +149,7 @@ public sealed partial class MainViewModel : ObservableObject
         ShowCachedResult();
         ScheduleRender();
         NotifyPanels();
+        NotifyReference();
         RenderCommandsChanged();
     }
 
@@ -198,6 +206,17 @@ public sealed partial class MainViewModel : ObservableObject
             ScheduleRender();
         }
         if (source == SelectedSample && property == nameof(Sample.Text)) NotifyPanels();
+        if (source == SelectedSample && property == nameof(Sample.ReferenceAudio)) NotifyReference();
+    }
+
+    private void NotifyReference()
+    {
+        OnPropertyChanged(nameof(ReferencePath));
+        OnPropertyChanged(nameof(HasReference));
+        OnPropertyChanged(nameof(ReferenceName));
+        OnPropertyChanged(nameof(ReferenceMissing));
+        AttachReferenceCommand.NotifyCanExecuteChanged();
+        PlayReferenceCommand.NotifyCanExecuteChanged();
     }
 
     private void FlushSnapshot()
@@ -366,6 +385,9 @@ public sealed partial class MainViewModel : ObservableObject
         }
         try
         {
+            // Relative recording paths follow the project to its new location.
+            if (!string.Equals(Path.GetFullPath(path), ProjectPath, StringComparison.OrdinalIgnoreCase))
+                ReferenceRecordings.Rebase(Project, ProjectPath, path);
             if (_snapshotTimer.IsEnabled) FlushSnapshot();
             if (ProjectPath is null && Project.Name == "Untitled") Project.Name = Path.GetFileNameWithoutExtension(path);
             ProjectFile.Save(Project, path);
@@ -605,7 +627,7 @@ public sealed partial class MainViewModel : ObservableObject
 
     // ------------------------------------------------------------------ rendering and playback
 
-    private string RenderKey(Sample s) => SynthesisRequest.For(Project, s, "").ContentKey();
+    private string RenderKey(Sample s) => SynthesisRequest.For(Project, s, "", projectPath: ProjectPath).ContentKey();
 
     private void ScheduleRender()
     {
@@ -655,7 +677,7 @@ public sealed partial class MainViewModel : ObservableObject
         {
             int seq = ++_renderSeq;
             var request = SynthesisRequest.For(Project, s, Path.Combine(_renderDir, key + ".wav"),
-                baseline ? Path.Combine(_renderDir, key + ".baseline.wav") : null);
+                baseline ? Path.Combine(_renderDir, key + ".baseline.wav") : null, ProjectPath);
             string text = s.Text;
             try
             {
@@ -769,7 +791,7 @@ public sealed partial class MainViewModel : ObservableObject
         {
             Status = $"Exporting “{s.Name}”…";
             var client = await Engine.GetAsync();
-            var result = await client.SynthesizeAsync(SynthesisRequest.For(Project, s, dlg.FileName));
+            var result = await client.SynthesizeAsync(SynthesisRequest.For(Project, s, dlg.FileName, projectPath: ProjectPath));
             Status = $"Exported {Path.GetFileName(result.Output)} ({result.Duration:0.0} s)";
         }
         catch (Exception e) when (e is EngineException or InvalidOperationException or IOException)
@@ -820,6 +842,49 @@ public sealed partial class MainViewModel : ObservableObject
     }
 
     private static void OpenFolder(string folder) => Process.Start(new ProcessStartInfo("explorer.exe", $"\"{folder}\"") { UseShellExecute = true });
+
+    // ------------------------------------------------------------------ reference recording
+
+    /// <summary>Attaches a recording of someone reading the sample, for the speech to follow.</summary>
+    [RelayCommand(CanExecute = nameof(HasSample))]
+    private void AttachReference()
+    {
+        if (SelectedSample is not { } s) return;
+        var dlg = new OpenFileDialog { Title = "Attach a recording of this text", Filter = RecordingImport.Filter };
+        if (ReferencePath is { } current && Directory.Exists(Path.GetDirectoryName(current))) dlg.InitialDirectory = Path.GetDirectoryName(current);
+        else if (ProjectPath is not null) dlg.InitialDirectory = Path.GetDirectoryName(ProjectPath);
+        if (dlg.ShowDialog(_window) != true) return;
+        try
+        {
+            Status = "Preparing the recording…";
+            string file = RecordingImport.Prepare(dlg.FileName);
+            s.ReferenceAudio = ReferenceRecordings.Store(file, ProjectPath);
+            Status = (file == dlg.FileName ? $"Following {Path.GetFileName(file)}" : $"Converted to {Path.GetFileName(file)} and following it") +
+                     (s.Text.Contains('\n') ? ". Note: a recording is only followed on single-line text." : ".");
+        }
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException or ArgumentException or InvalidOperationException
+                                       or System.Runtime.InteropServices.COMException)
+        {
+            Status = "Could not use the recording";
+            Dialog.ShowError(_window, "Could not use the recording", e.Message);
+        }
+    }
+
+    [RelayCommand]
+    private void RemoveReference()
+    {
+        if (SelectedSample is { } s) s.ReferenceAudio = null;
+    }
+
+    private bool CanPlayReference() => ReferencePath is { } p && File.Exists(p);
+
+    [RelayCommand(CanExecute = nameof(CanPlayReference))]
+    private void PlayReference()
+    {
+        if (ReferencePath is not { } p) return;
+        if (Player.IsPlaying && Player.CurrentFile == p) Player.Stop();
+        else Player.Play(p);
+    }
 
     [RelayCommand]
     private void ToggleEditText() => IsEditingText = !IsEditingText && SelectedSample is not null;

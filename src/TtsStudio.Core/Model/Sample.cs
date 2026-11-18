@@ -29,6 +29,15 @@ public sealed partial class Sample : ObservableObject
 
     [ObservableProperty] public partial string? Notes { get; set; }
 
+    /// <summary>
+    /// Optional recording of someone reading the text: the speech follows its timing and intonation.
+    /// A path relative to the project file's folder, or absolute (see <see cref="ReferenceRecordings"/>).
+    /// </summary>
+    [ObservableProperty] public partial string? ReferenceAudio { get; set; }
+
+    /// <summary>How closely to follow the reference recording: 0 ignores it, 1 follows it fully.</summary>
+    [ObservableProperty] public partial double ReferenceStrength { get; set; } = 1.0;
+
     public ObservableCollection<Region> Regions { get; set; } = [];
 
     /// <summary>

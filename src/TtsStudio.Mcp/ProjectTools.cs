@@ -121,13 +121,16 @@ public sealed class ProjectTools(EngineService engine)
         [Description("Overall pitch range (0 monotone, 1 natural).")] double? pitchRange = null,
         [Description("Export file name without extension; defaults to the name.")] string? fileName = null,
         string? notes = null,
+        [Description("Recording of someone reading the text (wav, flac, ogg or mp3; absolute, or relative to the working directory). The speech follows its timing and intonation; regions still apply on top. Only used on single-line text. Empty string removes it.")] string? referenceAudio = null,
+        [Description("How closely to follow the recording: 0 ignores it, 1 (the default) follows it fully.")] double? referenceStrength = null,
         [Description("Insert at this index (default: end).")] int? index = null)
     {
-        return Edit(path, (project, _) =>
+        return Edit(path, (project, full) =>
         {
             var s = new Sample { Name = name, FileName = fileName, Notes = notes };
             SetContent(s, text, markup);
             ApplySampleSettings(s, voice, speed, pitch, pitchRange);
+            ApplyReference(s, full, referenceAudio, referenceStrength);
             project.Samples.Insert(Math.Clamp(index ?? project.Samples.Count, 0, project.Samples.Count), s);
             return SampleDetail(s);
         });
@@ -146,9 +149,11 @@ public sealed class ProjectTools(EngineService engine)
         double? pitch = null,
         double? pitchRange = null,
         string? fileName = null,
-        string? notes = null)
+        string? notes = null,
+        [Description("Recording of someone reading the text (wav, flac, ogg or mp3; absolute, or relative to the working directory). The speech follows its timing and intonation; regions still apply on top. Only used on single-line text. Empty string removes it.")] string? referenceAudio = null,
+        [Description("How closely to follow the recording: 0 ignores it, 1 (the default) follows it fully.")] double? referenceStrength = null)
     {
-        return Edit(path, (project, _) =>
+        return Edit(path, (project, full) =>
         {
             var s = FindSample(project, sample);
             if (name is not null) s.Name = name;
@@ -158,6 +163,7 @@ public sealed class ProjectTools(EngineService engine)
             if (markup is not null) SetContent(s, null, markup);
             else if (text is not null) removed = s.ReplaceText(text).Select(r => (object)new { r.Id, summary = RegionTools.Summary(r) }).ToList();
             ApplySampleSettings(s, voice, speed, pitch, pitchRange);
+            ApplyReference(s, full, referenceAudio, referenceStrength);
             return new { sample = SampleDetail(s), removedRegions = removed };
         });
     }
@@ -288,7 +294,7 @@ public sealed class ProjectTools(EngineService engine)
         if (string.IsNullOrWhiteSpace(s.Text)) throw new McpException("The sample has no text.");
         string outPath = output is not null ? FullPath(output) : Exporter.PlanExport(project, full, format is null ? null : Format(format))[s];
         var client = await engine.GetAsync(ct);
-        var r = await client.SynthesizeAsync(SynthesisRequest.For(project, s, outPath), ct);
+        var r = await client.SynthesizeAsync(SynthesisRequest.For(project, s, outPath, projectPath: full), ct);
         return Json(new
         {
             output = r.Output,
@@ -393,6 +399,24 @@ public sealed class ProjectTools(EngineService engine)
         if (pitchRange is not null) s.PitchRange = CheckRange("pitchRange", pitchRange.Value, 0, 3);
     }
 
+    private static void ApplyReference(Sample s, string projectPath, string? referenceAudio, double? referenceStrength)
+    {
+        if (referenceAudio is not null)
+        {
+            if (referenceAudio.Length == 0) s.ReferenceAudio = null;
+            else
+            {
+                string file = FullPath(referenceAudio);
+                if (!File.Exists(file)) throw new McpException($"Recording not found: {file}");
+                if (!ReferenceRecordings.IsSupported(file))
+                    throw new McpException($"The engine reads {string.Join(", ", ReferenceRecordings.Formats)} recordings. " +
+                                           "Convert it first (the TTS Studio app converts m4a and similar when you attach them there).");
+                s.ReferenceAudio = ReferenceRecordings.Store(file, projectPath);
+            }
+        }
+        if (referenceStrength is not null) s.ReferenceStrength = CheckRange("referenceStrength", referenceStrength.Value, 0, 1);
+    }
+
     private static (int, int) Locate(Sample s, string? match, int occurrence, int? start, int? end)
     {
         if (!string.IsNullOrEmpty(match))
@@ -483,6 +507,8 @@ public sealed class ProjectTools(EngineService engine)
         s.Pitch,
         s.PitchRange,
         s.Notes,
+        s.ReferenceAudio,
+        referenceStrength = s.ReferenceAudio is null ? (double?)null : s.ReferenceStrength,
         regions = s.Regions.OrderBy(r => r.Start).Select(r => RegionDetail(s, r)),
     };
 

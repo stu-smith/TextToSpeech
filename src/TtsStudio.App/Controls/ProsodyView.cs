@@ -8,9 +8,10 @@ using TtsStudio.Core.Engine;
 namespace TtsStudio.App.Controls;
 
 /// <summary>
-/// Timeline of the last render: waveform envelope, the model's predicted pitch (dashed) and the
-/// pitch after edits (solid), word boundaries and labels, the selected region's time span and the
-/// playhead. Clicking seeks.
+/// Timeline of the last render: waveform envelope, the model's predicted pitch (dashed), the
+/// melody of the sample's reference recording if it has one (dotted), the pitch after edits
+/// (solid), word boundaries and labels, the selected region's time span and the playhead.
+/// Clicking seeks.
 /// </summary>
 public sealed class ProsodyView : FrameworkElement
 {
@@ -50,7 +51,7 @@ public sealed class ProsodyView : FrameworkElement
 
     // Theme colours, reloaded from the palette when the theme changes.
     private Brush WaveBrush = null!, LabelBrush = null!, FaintBrush = null!, GuessBrush = null!;
-    private Pen GridPen = null!, WordPen = null!, PredictedPen = null!, FinalPen = null!, PlayheadPen = null!;
+    private Pen GridPen = null!, WordPen = null!, PredictedPen = null!, ReferencePen = null!, FinalPen = null!, PlayheadPen = null!;
 
     private void LoadColours()
     {
@@ -62,6 +63,12 @@ public sealed class ProsodyView : FrameworkElement
         GridPen = FrozenPen(Res("GridLineBrush"), 1);
         WordPen = FrozenPen(Res("WordLineBrush"), 1);
         PredictedPen = FrozenPen(Res("PredictedPitchBrush"), 1.3, DashStyles.Dash);
+        var dotted = new Pen(Res("ReferencePitchBrush"), 2.4)
+        {
+            DashStyle = new DashStyle([0, 2], 0), DashCap = PenLineCap.Round, LineJoin = PenLineJoin.Round,
+        };
+        dotted.Freeze();
+        ReferencePen = dotted;
         FinalPen = FrozenPen(Res("AccentBrush"), 2.2);
         PlayheadPen = FrozenPen(Res("MarkerBrush"), 1.5);
     }
@@ -118,7 +125,7 @@ public sealed class ProsodyView : FrameworkElement
         double X(double t) => area.Left + t / r.Duration * area.Width;
 
         // Pitch scale (log, so semitone edits look the same height anywhere).
-        var voiced = r.F0Final.Concat(r.F0Predicted).Where(v => v is > 40).Select(v => v!.Value).ToList();
+        var voiced = r.F0Final.Concat(r.F0Predicted).Concat(r.F0Reference).Where(v => v is > 40).Select(v => v!.Value).ToList();
         double lo = voiced.Count > 0 ? Math.Max(50, voiced.Min() * 0.85) : 80;
         double hi = voiced.Count > 0 ? voiced.Max() * 1.12 : 400;
         double Y(double hz) => area.Bottom - (Math.Log(hz) - Math.Log(lo)) / (Math.Log(hi) - Math.Log(lo)) * area.Height;
@@ -176,6 +183,7 @@ public sealed class ProsodyView : FrameworkElement
         }
 
         DrawCurve(dc, r.F0Predicted, r.F0Rate, X, Y, PredictedPen);
+        DrawCurve(dc, r.F0Reference, r.F0Rate, X, Y, ReferencePen);
         DrawCurve(dc, r.F0Final, r.F0Rate, X, Y, FinalPen);
 
         if (IsStale) dc.Pop();

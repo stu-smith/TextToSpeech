@@ -436,3 +436,4 @@ artifacts/
 showcase/**/output/
 *.mp4
 showcase/**/*.wav
+showcase/**/reference/

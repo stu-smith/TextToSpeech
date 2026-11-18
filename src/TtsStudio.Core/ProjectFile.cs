@@ -60,6 +60,8 @@ public static class ProjectFile
             }
             s.Text ??= "";
             s.Regions ??= [];
+            if (string.IsNullOrWhiteSpace(s.ReferenceAudio)) s.ReferenceAudio = null;
+            s.ReferenceStrength = double.IsFinite(s.ReferenceStrength) ? Math.Clamp(s.ReferenceStrength, 0, 1) : 1;
             var regionIds = new HashSet<string>();
             foreach (var r in s.Regions.ToList())
             {

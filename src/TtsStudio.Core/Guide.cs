@@ -30,6 +30,9 @@ public static class Guide
         Emphasis preset: pitch +2.5, rate 0.85, volume +1.5.
         Sample-wide settings: voice, speed, pitch (semitones), pitchRange.
         Lines are synthesised separately with a short gap; regions are clipped at line breaks.
+        Human reading: a sample may have a referenceAudio recording of someone reading its text
+        (single-line samples only). The speech then follows the recording's timing and melody,
+        by referenceStrength (0 ignores it, 1 follows it fully), and regions apply on top.
         """;
 
     public static string Full => $"""

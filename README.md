@@ -30,6 +30,11 @@ up pronunciations and render audio.
 - **Pitch and timing view**: the model's predicted pitch (dashed) against the pitch after your
   edits (solid), with the waveform, word timings and the selected region's span. Click it to
   play from that point.
+- **Human reading**: attach a recording of someone reading a single-line sample and the voice
+  follows its timing and intonation (the recording's melody appears dotted in the pitch view). A
+  Follow slider sets how closely, from 0% to 100%, and regions still apply on top. WAV, FLAC, Ogg
+  and MP3 are used directly; m4a (e.g. from Windows Voice Recorder) and similar are converted to
+  WAV when attached.
 - **A/B**: F6 plays the sample with all prosody edits switched off, for comparison.
 - **Projects** (`.ttsproj`, readable JSON): load, save, undo/redo, and a project-wide
   pronunciation lexicon. If another program (such as an agent) changes the file, the app

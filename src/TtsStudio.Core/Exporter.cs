@@ -55,7 +55,7 @@ public static class Exporter
         {
             var (sample, path) = (plan[i].Key, plan[i].Value);
             progress?.Report((i, plan.Count, sample));
-            var result = await engine.SynthesizeAsync(SynthesisRequest.For(project, sample, path), ct);
+            var result = await engine.SynthesizeAsync(SynthesisRequest.For(project, sample, path, projectPath: projectPath), ct);
             results.Add((sample, path, result));
         }
         return results;

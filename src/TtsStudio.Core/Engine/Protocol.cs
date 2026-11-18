@@ -18,7 +18,15 @@ public sealed class SynthesisRequest
     /// <summary>Optional second render with prosody ignored (pronunciations kept), for A/B listening.</summary>
     public string? BaselineOutput { get; set; }
 
-    public static SynthesisRequest For(Project project, Sample sample, string output, string? baselineOutput = null) => new()
+    /// <summary>Full path of a recording of the text to follow (timing and intonation), if any.</summary>
+    public string? ReferenceAudio { get; set; }
+
+    /// <summary>How closely to follow <see cref="ReferenceAudio"/>: 0 ignores it, 1 follows it fully.</summary>
+    public double ReferenceStrength { get; set; } = 1.0;
+
+    /// <param name="projectPath">The project file, which relative reference-recording paths are resolved against.</param>
+    public static SynthesisRequest For(Project project, Sample sample, string output, string? baselineOutput = null,
+                                       string? projectPath = null) => new()
     {
         Text = sample.Text,
         Regions = sample.Regions.ToList(),
@@ -29,6 +37,8 @@ public sealed class SynthesisRequest
         Lexicon = project.LexiconMap(),
         Output = output,
         BaselineOutput = baselineOutput,
+        ReferenceAudio = ReferenceRecordings.Resolve(sample.ReferenceAudio, projectPath),
+        ReferenceStrength = sample.ReferenceStrength,
     };
 
     /// <summary>Identifies the audio this request produces, so unchanged samples need not be re-rendered.</summary>
@@ -38,8 +48,12 @@ public sealed class SynthesisRequest
         {
             Text = Text, Regions = Regions, Voice = Voice, Speed = Speed, Pitch = Pitch,
             PitchRange = PitchRange, Lexicon = new(Lexicon.OrderBy(kv => kv.Key)),
+            ReferenceAudio = ReferenceAudio, ReferenceStrength = ReferenceStrength,
         };
         string json = System.Text.Json.JsonSerializer.Serialize(copy, ProjectFile.JsonOptions);
+        // A re-recorded reference changes the audio even though its path is the same.
+        if (ReferenceAudio is not null && File.Exists(ReferenceAudio))
+            json += $"|{File.GetLastWriteTimeUtc(ReferenceAudio).Ticks}:{new FileInfo(ReferenceAudio).Length}";
         return Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(json)))[..16];
     }
 }
@@ -56,6 +70,9 @@ public sealed class SynthesisResult
     public double F0Rate { get; set; } = 80;
     public List<double?> F0Predicted { get; set; } = [];
     public List<double?> F0Final { get; set; } = [];
+
+    /// <summary>The reference recording's pitch contour as followed (on the sample's voice), when one was used.</summary>
+    public List<double?> F0Reference { get; set; } = [];
     public List<double> Envelope { get; set; } = [];
     public BaselineResult? Baseline { get; set; }
 }

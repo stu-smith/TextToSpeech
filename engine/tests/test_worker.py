@@ -63,3 +63,32 @@ def test_phonemize_and_errors(worker):
     assert r["tokens"][0]["phonemes"] == "lˈʌfbəɹə"
     assert worker("nope")["error"]["message"].startswith("Unknown method")
     assert "error" in worker("synthesize", text="   ", output="x.wav")
+
+
+def test_reference_recording(worker, tmp_path):
+    text = "Here are ten surnames that sound nothing like they look."
+    # A stand-in recording: another voice reading the same text with a slower, different rhythm.
+    ref = tmp_path / "reading.flac"
+    made = worker("synthesize", text=text, regions=[{"start": 9, "end": 12, "rate": 0.5}], voice="am_adam", output=str(ref))
+    assert "result" in made, made
+
+    plain = worker("synthesize", text=text, voice="bf_emma", output=str(tmp_path / "plain.wav"))["result"]
+    led = worker("synthesize", text=text, voice="bf_emma", output=str(tmp_path / "led.wav"),
+                 referenceAudio=str(ref), referenceStrength=1.0)["result"]
+    assert plain["f0Reference"] == [] and any(v for v in led["f0Reference"])
+    assert led["duration"] > plain["duration"] + 0.2  # it took on the slower reading
+    assert led["warnings"] == []
+
+    off = worker("synthesize", text=text, voice="bf_emma", output=str(tmp_path / "off.wav"),
+                 referenceAudio=str(ref), referenceStrength=0)["result"]
+    assert off["f0Reference"] == []
+
+    two_lines = worker("synthesize", text=text + "\nAnd again.", voice="bf_emma", output=str(tmp_path / "two.wav"),
+                       referenceAudio=str(ref))["result"]
+    assert any("single line" in w for w in two_lines["warnings"])
+    missing = worker("synthesize", text=text, voice="bf_emma", output=str(tmp_path / "m.wav"),
+                     referenceAudio=str(tmp_path / "nope.wav"))["result"]
+    assert any("not found" in w for w in missing["warnings"])
+    wrong = worker("synthesize", text="Thanks!", voice="bf_emma", output=str(tmp_path / "w.wav"),
+                   referenceAudio=str(ref))["result"]
+    assert any("may not be a reading of this text" in w for w in wrong["warnings"])

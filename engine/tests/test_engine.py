@@ -4,6 +4,7 @@ import numpy as np
 import pytest
 
 from ttsengine.engine import F0_RATE, Engine
+from ttsengine.prosody import Reference
 
 
 @pytest.fixture(scope="module")
@@ -65,6 +66,19 @@ def test_pause_is_spliced_in_without_a_hard_cut(engine):
     # The waveform fades to and from the silence instead of stopping and starting mid-sound.
     assert np.abs(r.audio[start - 3:start]).max() < 0.01
     assert np.abs(r.audio[end:end + 3]).max() < 0.01
+
+
+def test_reference_recording_sets_the_timing(engine):
+    text = "Here are ten surnames that sound nothing like they look."
+    # A stand-in "recording": another voice with a very different rhythm.
+    ref = engine.synthesize("Here are {ten | r=0.5} surnames {pause 400} that sound {nothing like | r=0.6} they look.",
+                            voice="am_adam")
+    plain = engine.synthesize(text, voice="bf_emma")
+    led = engine.synthesize(text, voice="bf_emma", reference=Reference(ref.audio))
+    starts = lambda r: np.array([t.start for t in r.tokens if t.start is not None and t.source != "punct"])
+    assert np.abs(starts(led) - starts(ref)).mean() < 0.08
+    assert np.abs(starts(plain) - starts(ref)).mean() > 0.25
+    assert led.f0_reference is not None and plain.f0_reference is None
 
 
 def test_pronunciation_override_and_lexicon(engine):
