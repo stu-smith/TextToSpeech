@@ -407,59 +407,97 @@
       "name": "wrong",
       "duration": 0.55,
       "sampleRate": 44100,
-      "outputNode": "fd597df3",
+      "outputNode": "out",
       "nodes": [
         {
-          "id": "2489f887",
+          "id": "sq",
           "type": "Square",
           "x": 60,
-          "y": 40,
+          "y": 60,
           "values": {
-            "Frequency": 155
+            "Frequency": 98,
+            "Pulse Width": 0.3,
+            "Level": 1
           },
           "props": {}
         },
         {
-          "id": "1413b9a4",
+          "id": "saw",
           "type": "Saw",
           "x": 60,
-          "y": 280,
+          "y": 307,
           "values": {
-            "Frequency": 155,
-            "Detune": 18,
-            "Level": 0.8
+            "Frequency": 98,
+            "Detune": 35,
+            "Level": 0.9
           },
           "props": {}
         },
         {
-          "id": "f282f485",
+          "id": "sq2",
+          "type": "Square",
+          "x": 60,
+          "y": 529,
+          "values": {
+            "Frequency": 147,
+            "Detune": -20,
+            "Pulse Width": 0.4,
+            "Level": 0.5
+          },
+          "props": {}
+        },
+        {
+          "id": "mix",
           "type": "Mixer",
-          "x": 320,
-          "y": 40,
+          "x": 330,
+          "y": 60,
           "props": {
-            "channels": 2
+            "channels": 3
           }
         },
         {
-          "id": "36691a7f",
-          "type": "Filter",
-          "x": 580,
-          "y": 40,
+          "id": "dist",
+          "type": "Distortion",
+          "x": 600,
+          "y": 60,
           "values": {
-            "Cutoff": 1800,
-            "Resonance": 0.3
+            "Type": 1,
+            "Drive": 6,
+            "Mix": 1,
+            "Output": 0.7
           },
           "props": {}
         },
         {
-          "id": "e420c83a",
-          "type": "Curve",
-          "x": 320,
-          "y": 280,
+          "id": "mid",
+          "type": "Filter",
+          "x": 870,
+          "y": 60,
           "values": {
-            "Length": 0.275,
-            "Loop": 1
+            "Mode": 4,
+            "Cutoff": 1400,
+            "Resonance": 0.5,
+            "Gain": 2.2
           },
+          "props": {}
+        },
+        {
+          "id": "lp",
+          "type": "Filter",
+          "x": 1140,
+          "y": 60,
+          "values": {
+            "Mode": 0,
+            "Cutoff": 5500,
+            "Resonance": 0.1
+          },
+          "props": {}
+        },
+        {
+          "id": "env",
+          "type": "Curve",
+          "x": 1140,
+          "y": 257,
           "props": {
             "curve": {
               "interpolation": "Linear",
@@ -469,15 +507,15 @@
                   "y": 0
                 },
                 {
-                  "x": 0.03,
+                  "x": 0.01,
                   "y": 1
                 },
                 {
-                  "x": 0.72,
-                  "y": 0.85
+                  "x": 0.9,
+                  "y": 0.92
                 },
                 {
-                  "x": 0.8,
+                  "x": 0.97,
                   "y": 0
                 },
                 {
@@ -489,187 +527,97 @@
           }
         },
         {
-          "id": "65babb90",
+          "id": "vca",
           "type": "Gain",
-          "x": 840,
-          "y": 40,
+          "x": 1410,
+          "y": 60,
           "props": {}
         },
         {
-          "id": "81893900",
+          "id": "norm",
           "type": "Normalize",
-          "x": 1100,
-          "y": 40,
+          "x": 1680,
+          "y": 60,
           "values": {
-            "Target": -3
+            "Target": -1.5
           },
           "props": {}
         },
         {
-          "id": "fd597df3",
+          "id": "out",
           "type": "Output",
-          "x": 1360,
-          "y": 40,
-          "props": {}
-        }
-      ],
-      "connections": [
-        {
-          "from": "2489f887",
-          "to": "f282f485",
-          "port": "In 1"
-        },
-        {
-          "from": "1413b9a4",
-          "to": "f282f485",
-          "port": "In 2"
-        },
-        {
-          "from": "f282f485",
-          "to": "36691a7f",
-          "port": "Input"
-        },
-        {
-          "from": "36691a7f",
-          "to": "65babb90",
-          "port": "Input"
-        },
-        {
-          "from": "e420c83a",
-          "to": "65babb90",
-          "port": "Gain"
-        },
-        {
-          "from": "65babb90",
-          "to": "81893900",
-          "port": "Input"
-        },
-        {
-          "from": "81893900",
-          "to": "fd597df3",
-          "port": "Input"
-        }
-      ]
-    },
-    {
-      "id": "290769ae",
-      "name": "reveal",
-      "duration": 2.2,
-      "sampleRate": 44100,
-      "outputNode": "0b504f5b",
-      "nodes": [
-        {
-          "id": "f023d420",
-          "type": "Pluck",
-          "x": 60,
-          "y": 40,
+          "x": 1950,
+          "y": 60,
           "values": {
-            "Frequency": 784,
-            "Damping": 0.08,
-            "Brightness": 0.55,
-            "Level": 0.9
+            "Fade Out": 0.02
           },
           "props": {}
         },
         {
-          "id": "5d5c9dde",
-          "type": "Pluck",
-          "x": 60,
-          "y": 280,
+          "id": "dc",
+          "type": "Tone",
+          "x": 1410,
+          "y": 207,
           "values": {
-            "Frequency": 1047,
-            "Damping": 0.1,
-            "Brightness": 0.6,
-            "Start": 0.13,
-            "Level": 0.8
-          },
-          "props": {}
-        },
-        {
-          "id": "1c5050d6",
-          "type": "Pluck",
-          "x": 60,
-          "y": 520,
-          "values": {
-            "Frequency": 1568,
-            "Damping": 0.12,
-            "Brightness": 0.65,
-            "Start": 0.26,
-            "Level": 0.6
-          },
-          "props": {}
-        },
-        {
-          "id": "521fce84",
-          "type": "Mixer",
-          "x": 340,
-          "y": 40,
-          "props": {
-            "channels": 4
-          }
-        },
-        {
-          "id": "2c23ddb9",
-          "type": "Reverb",
-          "x": 600,
-          "y": 40,
-          "values": {
-            "Size": 0.7,
-            "Damping": 0.35,
-            "Mix": 0.35
-          },
-          "props": {}
-        },
-        {
-          "id": "6bea31f8",
-          "type": "Normalize",
-          "x": 840,
-          "y": 40,
-          "values": {
-            "Target": -2
-          },
-          "props": {}
-        },
-        {
-          "id": "0b504f5b",
-          "type": "Output",
-          "x": 1080,
-          "y": 40,
-          "values": {
-            "Fade Out": 0.2
+            "Mode": 2
           },
           "props": {}
         }
       ],
       "connections": [
         {
-          "from": "f023d420",
-          "to": "521fce84",
+          "from": "sq",
+          "to": "mix",
           "port": "In 1"
         },
         {
-          "from": "5d5c9dde",
-          "to": "521fce84",
+          "from": "saw",
+          "to": "mix",
           "port": "In 2"
         },
         {
-          "from": "1c5050d6",
-          "to": "521fce84",
+          "from": "sq2",
+          "to": "mix",
           "port": "In 3"
         },
         {
-          "from": "521fce84",
-          "to": "2c23ddb9",
+          "from": "mix",
+          "to": "dist",
           "port": "Input"
         },
         {
-          "from": "2c23ddb9",
-          "to": "6bea31f8",
+          "from": "dist",
+          "to": "mid",
           "port": "Input"
         },
         {
-          "from": "6bea31f8",
-          "to": "0b504f5b",
+          "from": "mid",
+          "to": "lp",
+          "port": "Input"
+        },
+        {
+          "from": "env",
+          "to": "vca",
+          "port": "Gain"
+        },
+        {
+          "from": "vca",
+          "to": "norm",
+          "port": "Input"
+        },
+        {
+          "from": "norm",
+          "to": "out",
+          "port": "Input"
+        },
+        {
+          "from": "lp",
+          "to": "dc",
+          "port": "Input"
+        },
+        {
+          "from": "dc",
+          "to": "vca",
           "port": "Input"
         }
       ]
@@ -1672,6 +1620,346 @@
         {
           "from": "dc",
           "to": "comp",
+          "port": "Input"
+        }
+      ]
+    },
+    {
+      "id": "27baf47e",
+      "name": "ding",
+      "duration": 1.8,
+      "sampleRate": 44100,
+      "outputNode": "out",
+      "nodes": [
+        {
+          "id": "p1",
+          "type": "Sine",
+          "x": 330,
+          "y": 60,
+          "values": {
+            "Frequency": 1318.5,
+            "Level": 1
+          },
+          "props": {}
+        },
+        {
+          "id": "e1",
+          "type": "ADSR",
+          "x": 330,
+          "y": 257,
+          "values": {
+            "Attack": 0.002,
+            "Decay": 1.5,
+            "Sustain": 0,
+            "Hold": 0,
+            "Release": 0.1,
+            "Shape": -0.75
+          },
+          "props": {}
+        },
+        {
+          "id": "g1",
+          "type": "Gain",
+          "x": 600,
+          "y": 60,
+          "props": {}
+        },
+        {
+          "id": "p2",
+          "type": "Sine",
+          "x": 330,
+          "y": 504,
+          "values": {
+            "Frequency": 2637,
+            "Level": 0.3
+          },
+          "props": {}
+        },
+        {
+          "id": "e2",
+          "type": "ADSR",
+          "x": 330,
+          "y": 701,
+          "values": {
+            "Attack": 0.002,
+            "Decay": 0.8,
+            "Sustain": 0,
+            "Hold": 0,
+            "Release": 0.1,
+            "Shape": -0.75
+          },
+          "props": {}
+        },
+        {
+          "id": "g2",
+          "type": "Gain",
+          "x": 600,
+          "y": 207,
+          "props": {}
+        },
+        {
+          "id": "p3",
+          "type": "Sine",
+          "x": 330,
+          "y": 948,
+          "values": {
+            "Frequency": 3639,
+            "Level": 0.28
+          },
+          "props": {}
+        },
+        {
+          "id": "e3",
+          "type": "ADSR",
+          "x": 330,
+          "y": 1145,
+          "values": {
+            "Attack": 0.001,
+            "Decay": 0.45,
+            "Sustain": 0,
+            "Hold": 0,
+            "Release": 0.05,
+            "Shape": -0.8
+          },
+          "props": {}
+        },
+        {
+          "id": "g3",
+          "type": "Gain",
+          "x": 600,
+          "y": 354,
+          "props": {}
+        },
+        {
+          "id": "p4",
+          "type": "Sine",
+          "x": 330,
+          "y": 1392,
+          "values": {
+            "Frequency": 7120,
+            "Level": 0.12
+          },
+          "props": {}
+        },
+        {
+          "id": "e4",
+          "type": "ADSR",
+          "x": 330,
+          "y": 1589,
+          "values": {
+            "Attack": 0.001,
+            "Decay": 0.18,
+            "Sustain": 0,
+            "Hold": 0,
+            "Release": 0.05,
+            "Shape": -0.8
+          },
+          "props": {}
+        },
+        {
+          "id": "g4",
+          "type": "Gain",
+          "x": 600,
+          "y": 501,
+          "props": {}
+        },
+        {
+          "id": "click",
+          "type": "Noise",
+          "x": 60,
+          "y": 307,
+          "values": {
+            "Colour": 0,
+            "Level": 0.5
+          },
+          "props": {}
+        },
+        {
+          "id": "chp",
+          "type": "Filter",
+          "x": 330,
+          "y": 1836,
+          "values": {
+            "Mode": 1,
+            "Cutoff": 3000
+          },
+          "props": {}
+        },
+        {
+          "id": "ce",
+          "type": "ADSR",
+          "x": 330,
+          "y": 2033,
+          "values": {
+            "Attack": 0.0005,
+            "Decay": 0.012,
+            "Sustain": 0,
+            "Hold": 0,
+            "Release": 0.005,
+            "Shape": -0.8
+          },
+          "props": {}
+        },
+        {
+          "id": "cg",
+          "type": "Gain",
+          "x": 600,
+          "y": 648,
+          "props": {}
+        },
+        {
+          "id": "vib",
+          "type": "LFO",
+          "x": 60,
+          "y": 60,
+          "values": {
+            "Rate": 5.5,
+            "Depth": 3,
+            "Offset": 0
+          },
+          "props": {}
+        },
+        {
+          "id": "mix",
+          "type": "Mixer",
+          "x": 870,
+          "y": 60,
+          "props": {
+            "channels": 5
+          }
+        },
+        {
+          "id": "verb",
+          "type": "Reverb",
+          "x": 1140,
+          "y": 60,
+          "values": {
+            "Size": 0.5,
+            "Damping": 0.5,
+            "Mix": 0.15
+          },
+          "props": {}
+        },
+        {
+          "id": "norm",
+          "type": "Normalize",
+          "x": 1410,
+          "y": 60,
+          "values": {
+            "Target": -2
+          },
+          "props": {}
+        },
+        {
+          "id": "out",
+          "type": "Output",
+          "x": 1680,
+          "y": 60,
+          "values": {
+            "Fade Out": 0.1
+          },
+          "props": {}
+        }
+      ],
+      "connections": [
+        {
+          "from": "p1",
+          "to": "g1",
+          "port": "Input"
+        },
+        {
+          "from": "e1",
+          "to": "g1",
+          "port": "Gain"
+        },
+        {
+          "from": "p2",
+          "to": "g2",
+          "port": "Input"
+        },
+        {
+          "from": "e2",
+          "to": "g2",
+          "port": "Gain"
+        },
+        {
+          "from": "p3",
+          "to": "g3",
+          "port": "Input"
+        },
+        {
+          "from": "e3",
+          "to": "g3",
+          "port": "Gain"
+        },
+        {
+          "from": "p4",
+          "to": "g4",
+          "port": "Input"
+        },
+        {
+          "from": "e4",
+          "to": "g4",
+          "port": "Gain"
+        },
+        {
+          "from": "click",
+          "to": "chp",
+          "port": "Input"
+        },
+        {
+          "from": "chp",
+          "to": "cg",
+          "port": "Input"
+        },
+        {
+          "from": "ce",
+          "to": "cg",
+          "port": "Gain"
+        },
+        {
+          "from": "vib",
+          "to": "p1",
+          "port": "Detune"
+        },
+        {
+          "from": "g1",
+          "to": "mix",
+          "port": "In 1"
+        },
+        {
+          "from": "g2",
+          "to": "mix",
+          "port": "In 2"
+        },
+        {
+          "from": "g3",
+          "to": "mix",
+          "port": "In 3"
+        },
+        {
+          "from": "g4",
+          "to": "mix",
+          "port": "In 4"
+        },
+        {
+          "from": "cg",
+          "to": "mix",
+          "port": "In 5"
+        },
+        {
+          "from": "mix",
+          "to": "verb",
+          "port": "Input"
+        },
+        {
+          "from": "verb",
+          "to": "norm",
+          "port": "Input"
+        },
+        {
+          "from": "norm",
+          "to": "out",
           "port": "Input"
         }
       ]

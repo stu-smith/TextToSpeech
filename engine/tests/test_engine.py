@@ -56,6 +56,17 @@ def test_pause_inserts_silence(engine):
     assert gap > 0.7
 
 
+def test_pause_is_spliced_in_without_a_hard_cut(engine):
+    r = engine.synthesize("This village has nothing to do with mice... {pause 150} or holes.", voice="bf_emma")
+    silent = np.flatnonzero(r.audio == 0)
+    start = silent[np.searchsorted(silent, int(_word(r, "mice").start * 24000))]
+    end = start + int(0.15 * 24000)
+    assert np.all(r.audio[start:end] == 0)
+    # The waveform fades to and from the silence instead of stopping and starting mid-sound.
+    assert np.abs(r.audio[start - 3:start]).max() < 0.01
+    assert np.abs(r.audio[end:end + 3]).max() < 0.01
+
+
 def test_pronunciation_override_and_lexicon(engine):
     r = engine.synthesize("[Nguyen](/wˈɪn/) met Siobhan.", lexicon={"siobhan": "ʃəvˈɔn"})
     assert _word(r, "Nguyen").phonemes == "wˈɪn" and _word(r, "Nguyen").source == "markup"

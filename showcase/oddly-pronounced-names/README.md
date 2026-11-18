@@ -24,12 +24,12 @@ make it.
 |------|-----------|------------|
 | `narration.ttsproj` | TTS Studio | All narration (voice `bf_emma`). Each name appears twice in a sample, with different pronunciation regions: the as-spelled guess (with a rising "question" contour) and the real one. |
 | `audio/` | TTS Studio | Narration rendered from the project. |
-| `sound-effects.sfxproj` | SoundFX Foundry | Whoosh, impact, buzzer, reveal chime, riser and an 8-second music loop. |
+| `sound-effects.sfxproj` | SoundFX Foundry | Whoosh, impact, game-show buzzer, bell ding, riser and an 8-second music loop. |
 | `sfx/` | SoundFX Foundry | Those effects exported as WAV. |
 | `workflows/generate_images.py` | ComfyUI | Generates the scene art with Qwen Image 2.1 (`COMFYUI_URL` sets the server). |
 | `images/` | ComfyUI | Scene art, plus a TTS Studio screenshot for the outro. |
 | `build_video.py` | Python | Writes the Promo Foundry project from the narration timings. |
-| `oddly-pronounced-names.promoproj` | Promo Foundry | The video: one 1920×1080, 30 fps movie composition, about 2:22 long. |
+| `oddly-pronounced-names.promoproj` | Promo Foundry | The video: one 1920×1080, 30 fps movie composition, about 2:25 long. |
 | `master_audio.py` | ffmpeg | Normalises the exported soundtrack to YouTube loudness (-14 LUFS). |
 
 Rendered videos go to `output/`, which git ignores. The WAVs in `audio/` and `sfx/` are ignored

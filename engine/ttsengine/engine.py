@@ -35,6 +35,12 @@ MAX_PHONEMES = 510
 LINE_GAP_S = 0.2
 SMOOTH_FRAMES = 7  # ~90 ms of F0 frames; softens the edges of edited regions
 LN_SEMITONE = np.log(2) / 12
+# Pause placement: how far before the preceding word's predicted end and after the predicted cut to
+# look for the quietest point, the RMS window used to judge it, and the fade either side of the cut.
+PAUSE_SEARCH_BACK = int(0.04 * SAMPLE_RATE)
+PAUSE_SEARCH_AHEAD = int(0.15 * SAMPLE_RATE)
+PAUSE_RMS_WINDOW = int(0.01 * SAMPLE_RATE)
+PAUSE_FADE = int(0.008 * SAMPLE_RATE)
 
 # English voices only: the markup relies on misaki's English G2P.
 VOICES = [
@@ -114,6 +120,33 @@ def _source(tk) -> str:
         return "punct"
     # Merged words (contractions etc.) often lose their rating; those are rule-derived, not guesses.
     return {5: "markup", 4: "gold", 3: "silver", 2: "guessed"}.get(rating, "derived")
+
+
+def _quiet_point(audio: np.ndarray, target: int, lo: int, hi: int) -> int:
+    """The sample in [lo, hi), searched up to PAUSE_SEARCH_AHEAD past the target, where the audio is
+    quietest over a PAUSE_RMS_WINDOW; ties go to the point nearest the target."""
+    lo = max(0, lo)
+    hi = min(len(audio), hi, target + PAUSE_SEARCH_AHEAD)
+    if hi <= lo:
+        return int(np.clip(target, 0, len(audio)))
+    half = PAUSE_RMS_WINDOW // 2
+    padded = np.pad(audio.astype(np.float64) ** 2, (half, half))
+    energy = np.concatenate([[0.0], np.cumsum(padded)])
+    candidates = np.arange(lo, hi + 1)
+    rms = np.sqrt((energy[candidates + 2 * half] - energy[candidates]) / (2 * half))
+    nearness = np.abs(candidates - target) / max(hi - lo, 1)
+    return int(candidates[np.argmin(rms + 1e-4 * nearness)])
+
+
+def _fade_edges(audio: np.ndarray, pos: int, n: int = 0) -> None:
+    """Fades the audio out just before pos and in just after it (in place), so silence spliced in at
+    pos never starts or ends mid-waveform."""
+    n = n or PAUSE_FADE
+    ramp = (0.5 - 0.5 * np.cos(np.linspace(0, np.pi, n))).astype(audio.dtype)  # 0 -> 1
+    k = min(n, pos)
+    audio[pos - k:pos] *= ramp[::-1][n - k:]
+    k = min(n, len(audio) - pos)
+    audio[pos:pos + k] *= ramp[:k]
 
 
 def _smooth(x: np.ndarray, n: int = SMOOTH_FRAMES) -> np.ndarray:
@@ -357,20 +390,31 @@ class Engine:
         cum = np.concatenate([[0], np.cumsum(pred_dur)])
 
         # Pauses: silence after the preceding token, mid-way through its trailing space if it has one.
+        # Durations are soft alignments, so the voice is often still sounding at that frame: move the
+        # cut to the quietest nearby point (never past the next word's start) and fade either side.
         inserts = []  # (sample position, n samples)
         for pause in pauses:
             prev = [r for tk, r in zip(mtokens, tok_ids) if r and tk._.vis and tk._.vis[1] <= pause.offset]
             pos = 0
             if prev:
                 b = prev[-1][1]
-                pos = int(cum[b] + (pred_dur[b] // 2 if b < len(ids) - 1 and ids[b] == vocab[" "] else 0))
-            inserts.append((pos * HOP, int(pause.seconds * SAMPLE_RATE)))
+                frame = int(cum[b] + (pred_dur[b] // 2 if b < len(ids) - 1 and ids[b] == vocab[" "] else 0))
+                nxt = [r for tk, r in zip(mtokens, tok_ids) if r and r[0] >= b]
+                limit = cum[nxt[0][0]] * HOP if nxt else len(audio)
+                pos = _quiet_point(audio, frame * HOP, int(cum[b] * HOP) - PAUSE_SEARCH_BACK, limit)
+            inserts.append((pos, int(pause.seconds * SAMPLE_RATE)))
 
         # Token timings (before inserting pauses), then shift by pauses that precede them.
         for info, r in zip(infos, tok_ids):
             if r:
                 info.start = cum[r[0]] * HOP / SAMPLE_RATE
                 info.end = cum[r[1]] * HOP / SAMPLE_RATE
+        audio = audio.copy()
+        for pos, _ in inserts:
+            _fade_edges(audio, pos)
+            for info in infos:  # a cut moved back into a word's tail ends that word there
+                if info.start is not None and info.start * SAMPLE_RATE < pos < info.end * SAMPLE_RATE:
+                    info.end = pos / SAMPLE_RATE
         for pos, n in sorted(inserts, reverse=True):
             audio = np.concatenate([audio[:pos], np.zeros(n, dtype=np.float32), audio[pos:]])
             fpos, fn = pos // F0_HOP, n // F0_HOP

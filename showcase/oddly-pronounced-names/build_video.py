@@ -25,20 +25,23 @@ FONTS = {  # family -> file, for measuring text widths
     ("Impact", 400): "impact.ttf",
     ("Segoe UI", 700): "segoeuib.ttf",
     ("Bodoni MT", 900): "BOD_BLAR.TTF",
+    ("Segoe UI Symbol", 400): "seguisym.ttf",
 }
+GREEN = "#22C55E"
 
-# name, image, chip, naive respelling, real respelling, wav length, naive start, real start
+# name, image, chip, naive respelling, real respelling, wav length,
+# then start and end of the as-spelled name, and start and end of the real one (end of "Castle" for Belvoir)
 ENTRIES = [
-    (10, "Leominster", "leominster", "MARKET TOWN  ·  HEREFORDSHIRE", "lee-oh-MIN-ster", "LEM-ster", 7.95, 1.225, 6.5),
-    (9, "Beauchamp", "beauchamp", "SURNAME  ·  NORMAN ORIGIN", "BOH-champ", "BEE-chum", 7.8, 1.325, 6.425),
-    (8, "Mousehole", "mousehole", "FISHING VILLAGE  ·  CORNWALL", "MOUSE-hole", "MOW-zul", 8.3, 1.2, 6.95),
-    (7, "Menzies", "menzies", "SCOTTISH CLAN NAME", "MEN-zeez", "MING-iss", 9.98, 1.45, 8.625),
-    (6, "Belvoir", "belvoir", "CASTLE & VALE  ·  LEICESTERSHIRE", "bel-VWAH", "BEE-ver", 9.57, 1.35, 8.075),
-    (5, "Marjoribanks", "marjoribanks", "SURNAME  ·  SCOTTISH ARISTOCRACY", "MAR-jor-ee-banks", "MARCH-banks", 10.32, 1.4, 8.625),
-    (4, "Happisburgh", "happisburgh", "VILLAGE  ·  NORFOLK COAST", "HAP-iz-burg", "HAZE-bruh", 9.43, 1.225, 7.9),
-    (3, "Cholmondeley", "cholmondeley", "SURNAME  ·  CHESHIRE", "CHOL-mon-duh-lee", "CHUM-lee", 10.92, 1.225, 9.6),
-    (2, "Woolfardisworthy", "woolfardisworthy", "TWO VILLAGES  ·  DEVON", "wool-FAR-dis-wur-thee", "WOOL-zer-ee", 10.05, 1.275, 8.6),
-    (1, "Featherstonehaugh", "featherstonehaugh", "SURNAME  ·  17 LETTERS, 2 SYLLABLES", "FEATHER-stone-haw", "FAN-shaw", 8.8, 1.725, 7.225),
+    (10, "Leominster", "leominster", "MARKET TOWN  ·  HEREFORDSHIRE", "lee-oh-MIN-ster", "LEM-ster", 7.95, 1.225, 2.075, 6.5, 7.7),
+    (9, "Beauchamp", "beauchamp", "SURNAME  ·  NORMAN ORIGIN", "BOH-champ", "BEE-chum", 7.8, 1.325, 1.925, 6.425, 7.6),
+    (8, "Mousehole", "mousehole", "FISHING VILLAGE  ·  CORNWALL", "MOUSE-hole", "MOW-zul", 8.3, 1.2, 1.8, 6.95, 8.075),
+    (7, "Menzies", "menzies", "SCOTTISH CLAN NAME", "MEN-zeez", "MING-iss", 9.98, 1.45, 2.125, 8.625, 9.75),
+    (6, "Belvoir", "belvoir", "CASTLE & VALE  ·  LEICESTERSHIRE", "bel-VWAH", "BEE-ver", 9.57, 1.35, 1.85, 8.075, 9.375),
+    (5, "Marjoribanks", "marjoribanks", "SURNAME  ·  SCOTTISH ARISTOCRACY", "MAR-jor-ee-banks", "MARCH-banks", 10.32, 1.4, 2.375, 8.625, 10.1),
+    (4, "Happisburgh", "happisburgh", "VILLAGE  ·  NORFOLK COAST", "HAP-iz-burg", "HAZE-bruh", 9.43, 1.225, 2.025, 7.9, 9.175),
+    (3, "Cholmondeley", "cholmondeley", "SURNAME  ·  CHESHIRE", "CHOL-mon-duh-lee", "CHUM-lee", 10.92, 1.225, 1.975, 9.6, 10.7),
+    (2, "Woolfardisworthy", "woolfardisworthy", "TWO VILLAGES  ·  DEVON", "wool-FAR-dis-wur-thee", "WOOL-zer-ee", 10.05, 1.275, 2.25, 8.6, 9.825),
+    (1, "Featherstonehaugh", "featherstonehaugh", "SURNAME  ·  17 LETTERS, 2 SYLLABLES", "FEATHER-stone-haw", "FAN-shaw", 8.8, 1.725, 2.475, 7.225, 8.6),
 ]
 INTRO_WAV, OUTRO_WAV = 9.35, 17.8
 
@@ -166,16 +169,17 @@ text("subtitle", sub, (W - ws) / 2, 700, sub_at + 0.2, INTRO_END, size=46,
 # ----------------------------------------------------------------------------------------------
 # Countdown entries
 # ----------------------------------------------------------------------------------------------
-LEAD, TAIL = 0.5, 1.3
+LEAD, TAIL = 0.5, 1.6
 t = INTRO_END
-for number, name, image, chip, naive, real, wav, naive_at, real_at in ENTRIES:
+for number, name, image, chip, naive, real, wav, naive_at, naive_end, real_at, real_end in ENTRIES:
     start = t
     voice = start + LEAD
     end = voice + wav + TAIL
     t_number = voice + 0.3
     t_name = voice + naive_at - 0.15
-    t_strike = voice + naive_at + 1.0
+    t_strike = voice + naive_end + 0.03  # buzzer fills the gap before the next sentence
     t_real = voice + real_at
+    t_ding = voice + real_end + 0.1  # once the real pronunciation has been said
     out = {"kind": "fade", "duration": 0.3, "easing": "easeIn"}
 
     background(image, start, end)
@@ -185,8 +189,8 @@ for number, name, image, chip, naive, real, wav, naive_at, real_at in ENTRIES:
     audio("whoosh", "sfx\\whoosh.wav", start - 0.35, 1.2, volume=0.8)
     audio(f"{name} narration", f"audio\\{number:02d}-{image}.wav", voice, wav)
     audio("number impact", "sfx\\impact.wav", t_number, 1.3, volume=0.9)
-    audio("wrong buzzer", "sfx\\wrong.wav", t_strike, 0.55, volume=0.45)
-    audio("reveal chime", "sfx\\reveal.wav", t_real, 2.2, volume=0.7)
+    audio("wrong buzzer", "sfx\\wrong.wav", t_strike, 0.55, volume=0.5)
+    audio("ding", "sfx\\ding.wav", t_ding, 1.8, volume=0.6)
 
     # Number badge: a tilted magenta slab with a big gold number on it
     label = f"#{number}"
@@ -239,6 +243,17 @@ for number, name, image, chip, naive, real, wav, naive_at, real_at in ENTRIES:
          shadow=shadow(8, 18, 0.85), glow={"isEnabled": True, "color": "#FFB000", "opacity": 0.6, "size": 28},
          animation=anim(t_real, end, entrance={"kind": "pop", "duration": 0.55, "easing": "elasticOut"},
                         idle={"kind": "pulse", "amplitude": 2, "period": 1.2}, exit=out))
+
+    # Green tick beside it, popping in with the ding
+    tick_x = 88 + measure(real, "Impact", 400, 150) + 50
+    tick_anim = anim(t_ding, end, entrance={"kind": "pop", "duration": 0.5, "easing": "elasticOut"}, exit=out)
+    add("shape", "tick badge", shape="ellipse", x=tick_x, y=862, width=124, height=124,
+        fill={"kind": "linearGradient", "color": "#4ADE80", "color2": "#15803D", "angle": 90},
+        outline={"isEnabled": True, "color": "#FFFFFF", "thickness": 5, "position": "inside"},
+        shadow=shadow(6, 16, 0.7), glow={"isEnabled": True, "color": GREEN, "opacity": 0.6, "size": 24},
+        animation=tick_anim)
+    text("tick", "✔", tick_x + 28, 858, t_ding, end, family="Segoe UI Symbol", weight=400, size=90,
+         animation=tick_anim)
     t = end
 
 # ----------------------------------------------------------------------------------------------
@@ -287,7 +302,6 @@ def tool_card(title, tagline, bullets, at, until, accent):
              animation=anim(appear, until, entrance={"kind": "slideRight", "duration": 0.35, "easing": "easeOut",
                                                      "fade": True, "distance": 60}, exit=gone))
     audio("card whoosh", "sfx\\whoosh.wav", at - 0.3, 1.2, volume=0.6)
-    audio("card chime", "sfx\\reveal.wav", at + 0.1, 2.2, volume=0.45)
 
 
 # TTS Studio: its own screenshot, tilted towards the viewer
